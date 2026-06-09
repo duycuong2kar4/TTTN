@@ -1,11 +1,135 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Welcome to Astro Tech.">
+	<main class="tech-container">
+		<div class="glow-effect"></div>
+		
+		<div class="content-box">
+			<div class="globe-wrapper">
+				<div class="cyber-globe"></div>
+			</div>
+			
+			<h1 class="glow-text">ASTRO <span class="text-gradient">TECH</span></h1>
+			<p class="subtitle">Future Integration & Software Engineering Platform</p>
+			
+			<div class="metrics-grid">
+				<div class="card">
+					<span class="label">Performance</span>
+					<span class="value text-green">99%</span>
+				</div>
+				<div class="card">
+					<span class="label">Status</span>
+					<span class="value text-blue">Active</span>
+				</div>
+			</div>
+		</div>
+	</main>
 </Layout>
+
+<style>
+	:global(body) {
+		background-color: #05050a;
+		margin: 0;
+		font-family: 'Segoe UI', Roboto, sans-serif;
+		color: #ffffff;
+		overflow-hidden;
+	}
+
+	.tech-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 100vh;
+		position: relative;
+		background: radial-gradient(circle at center, #0a0a23 0%, #020205 100%);
+	}
+
+	.content-box {
+		text-align: center;
+		z-index: 10;
+	}
+
+	.glow-text {
+		font-size: 4rem;
+		font-weight: 800;
+		letter-spacing: 4px;
+		margin: 20px 0 5px 0;
+		color: #ffffff;
+		text-shadow: 0 0 20px rgba(122, 74, 247, 0.6);
+	}
+
+	.text-gradient {
+		background-image: linear-gradient(45deg, #7a4af7, #00f2fe);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+
+	.subtitle {
+		color: #8fa0dd;
+		font-size: 1.1rem;
+		letter-spacing: 1px;
+		margin-bottom: 30px;
+	}
+
+	/* Hiệu ứng quả cầu neon viễn tưởng */
+	.globe-wrapper {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 10px;
+	}
+
+	.cyber-globe {
+		width: 180px;
+		height: 180px;
+		border-radius: 50%;
+		border: 2px dashed #7a4af7;
+		box-shadow: 0 0 40px rgba(0, 242, 254, 0.3), inset 0 0 30px rgba(122, 74, 247, 0.3);
+		animation: spin 20s linear infinite;
+		position: relative;
+	}
+
+	.cyber-globe::after {
+		content: '';
+		position: absolute;
+		top: 10%; left: 10%; right: 10%; bottom: 10%;
+		border-radius: 50%;
+		border: 1px dashed #00f2fe;
+		animation: spin-reverse 10s linear infinite;
+	}
+
+	.metrics-grid {
+		display: flex;
+		gap: 20px;
+		justify-content: center;
+		margin-top: 20px;
+	}
+
+	.card {
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid rgba(122, 74, 247, 0.2);
+		padding: 12px 25px;
+		border-radius: 8px;
+		backdrop-filter: blur(10px);
+		min-width: 120px;
+	}
+
+	.card .label {
+		display: block;
+		font-size: 0.8rem;
+		color: #6c7da5;
+		margin-bottom: 5px;
+	}
+
+	.card .value {
+		font-size: 1.4rem;
+		font-weight: 700;
+	}
+
+	.text-green { color: #00ffaa; text-shadow: 0 0 10px rgba(0,255,170,0.4); }
+	.text-blue { color: #00f2fe; text-shadow: 0 0 10px rgba(0,242,254,0.4); }
+
+	@keyframes spin { 100% { transform: rotate(360deg); } }
+	@keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
+</style>
