@@ -4,8 +4,6 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout title="Welcome to Astro Tech.">
 	<main class="tech-container">
-		<div class="glow-effect"></div>
-		
 		<div class="content-box">
 			<div class="globe-wrapper">
 				<div class="cyber-globe"></div>
@@ -28,13 +26,13 @@ import Layout from '../layouts/Layout.astro';
 	</main>
 </Layout>
 
-<style>
-	:global(body) {
-		background-color: #05050a;
+<style is:global>
+	body {
+		background-color: #05050a !important;
 		margin: 0;
 		font-family: 'Segoe UI', Roboto, sans-serif;
 		color: #ffffff;
-		overflow-hidden;
+		overflow: hidden;
 	}
 
 	.tech-container {
@@ -42,8 +40,7 @@ import Layout from '../layouts/Layout.astro';
 		justify-content: center;
 		align-items: center;
 		min-height: 100vh;
-		position: relative;
-		background: radial-gradient(circle at center, #0a0a23 0%, #020205 100%);
+		background: radial-gradient(circle at center, #0a0a23 0%, #020205 100%) !important;
 	}
 
 	.content-box {
@@ -73,7 +70,6 @@ import Layout from '../layouts/Layout.astro';
 		margin-bottom: 30px;
 	}
 
-	/* Hiệu ứng quả cầu neon viễn tưởng */
 	.globe-wrapper {
 		display: flex;
 		justify-content: center;
