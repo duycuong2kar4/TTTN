@@ -1,6 +1,6 @@
 ---
 // src/pages/puck-test.astro
-// Bản chạy độc lập - Không import ngoài - Né triệt để lỗi đường dẫn của Vite
+// Bản cập nhật: Hỗ trợ thêm ảnh tùy biến dưới chân mỗi cột thông tin lớn
 ---
 
 <html lang="vi">
@@ -8,6 +8,7 @@
     <meta charset="utf-8" />
     <title>Hệ thống Thử Nghiệm Kéo Thả của Cường</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
 
@@ -19,117 +20,239 @@
       import { Puck } from '@measured/puck';
       import '@measured/puck/dist/index.css';
 
-      // --- TỰ ĐỊNH NGHĨA CONFIG KHỚP 100% VỚI MẪU CỦA MENTOR ĐỂ TEST LÀM MẪU ---
       const puckConfigLocal = {
         components: {
-          Heading: {
-            label: 'Tiêu đề',
+          // ==================== KHỐI ĐẶC BIỆT 3: THÔNG TIN & CƠ CẤU CLB ====================
+          ThongTinCLB: {
+            label: 'Thông tin & Cơ cấu CLB',
             fields: {
-              content: { type: 'text', label: 'Nội dung' },
-              level: {
-                type: 'select', label: 'Cấp độ',
-                options: [
-                  { label: 'H1', value: 1 }, { label: 'H2', value: 2 },
-                  { label: 'H3', value: 3 }, { label: 'H4', value: 4 }
-                ]
-              },
-              align: {
-                type: 'select', label: 'Căn lề',
-                options: [
-                  { label: 'Trái', value: 'left' },
-                  { label: 'Giữa', value: 'center' },
-                  { label: 'Phải', value: 'right' }
-                ]
-              }
-            },
-            defaultProps: { content: 'Tiêu đề mẫu', level: 2, align: 'left' },
-            render: ({ content, level, align }) => {
-              const Tag = `h${level}`;
-              return React.createElement(Tag, { style: { textAlign: align } }, content);
-            }
-          },
-
-          Text: {
-            label: 'Văn bản',
-            fields: {
-              content: { type: 'textarea', label: 'Nội dung' },
-              align: {
-                type: 'select', label: 'Căn lề',
-                options: [{ label: 'Trái', value: 'left' }, { label: 'Giữa', value: 'center' }, { label: 'Phải', value: 'right' }]
-              }
-            },
-            defaultProps: { content: 'Nhập nội dung đoạn văn...', align: 'left' },
-            render: ({ content, align }) => {
-              return React.createElement('p', { style: { textAlign: align }, className: "whitespace-pre-wrap" }, content);
-            }
-          },
-
-          Section: {
-            label: 'Khoảng (Section)',
-            fields: {
-              container: {
-                type: 'select', label: 'Chiều rộng',
-                options: [
-                  { label: 'Small', value: 'sm' },
-                  { label: 'Medium', value: 'md' },
-                  { label: 'Large', value: 'lg' }
-                ]
-              },
               background: {
-                type: 'object', label: 'Background',
+                type: 'object', label: '1. Cài đặt nền phía sau',
                 objectFields: {
                   type: {
                     type: 'select', label: 'Loại nền',
-                    options: [{ label: 'Màu sắc', value: 'color' }, { label: 'Hình ảnh', value: 'image' }]
+                    options: [
+                      { label: 'Màu đơn sắc / Gradient', value: 'color' }, 
+                      { label: 'Hình ảnh / Ảnh GIF', value: 'image' }
+                    ]
                   },
-                  color: { type: 'text', label: 'Màu nền', default: '#ffffff' },
-                  bg_image: { type: 'text', label: 'URL ảnh nền' }
+                  color: { type: 'text', label: 'Nhập mã màu (VD: #f3f4f6, linear-gradient...)' },
+                  imageUrl: { type: 'text', label: 'Dán URL hình ảnh hoặc ảnh GIF' }
                 }
               },
-              padding_x: { type: 'number', label: 'Padding ngang', default: 4 },
-              padding_y: { type: 'number', label: 'Padding dọc', default: 4 }
+              columns: {
+                type: 'array', label: '2. Danh sách các Cột thông tin lớn',
+                getItemSummary: (item, index) => item.colTitle || `Cột thông tin số ${index + 1}`,
+                arrayFields: {
+                  colTitle: { type: 'text', label: 'Tiêu đề cột lớn' },
+                  colText: { type: 'textarea', label: 'Đoạn văn bản mô tả trong cột' },
+                  
+                  // BỔ SUNG Ô NHẬP LINK ẢNH DƯỚI CHÂN CỘT
+                  colImageUrl: { type: 'text', label: 'Dán URL hình ảnh dưới chân cột (Nếu có)' },
+
+                  showSlider: { type: 'radio', label: 'Hiển thị thanh phân trang (< . _ . >)', options: [{ label: 'Có', value: true }, { label: 'Không', value: false }] },
+
+                  members: {
+                    type: 'array', label: 'Danh sách nhân sự (Nếu có)',
+                    getItemSummary: (m) => m.name || 'Thông tin người',
+                    arrayFields: {
+                      avatarUrl: { type: 'text', label: 'URL Ảnh đại diện (Tròn)' },
+                      name: { type: 'text', label: 'Họ và tên' },
+                      roleCLB: { type: 'text', label: 'Chức vụ CLB' },
+                      roleBiz: { type: 'text', label: 'Chức vụ Doanh nghiệp' },
+                      bizName: { type: 'text', label: 'Tên Doanh nghiệp' }
+                    }
+                  }
+                }
+              }
             },
-            defaultProps: { container: 'lg', background: { type: 'color', color: '#ffffff' }, padding_x: 4, padding_y: 4 },
-            render: ({ container, background, padding_x, padding_y, children }) => {
-              const bgStyle = {};
-              const bg = background || {};
-              if (bg.type === 'color') bgStyle.backgroundColor = bg.color || 'transparent';
-              if (bg.type === 'image' && bg.bg_image) bgStyle.backgroundImage = `url(${bg.bg_image})`;
-              
-              const paddingStyle = `${(padding_y || 0) * 4}px ${(padding_x || 0) * 4}px`;
+
+            defaultProps: {
+              background: {
+                type: 'color',
+                color: 'linear-gradient(135deg, #f3e8ff 0%, #e0f2fe 100%)',
+                imageUrl: ''
+              },
+              columns: [
+                {
+                  colTitle: 'VỀ CÂU LẠC BỘ',
+                  colText: 'CLB Doanh nhân Đồng Tháp tại TP.HCM là nơi hội tụ các doanh nghiệp, nhà quản lý và cá nhân khởi nghiệp trên địa bàn tỉnh. Với tinh thần kết nối – đồng hành – sẻ chia, CLB đóng vai trò thúc đẩy giá trị kinh doanh trong bối cảnh hội nhập và chuyển đổi số.',
+                  // Gán sẵn link ảnh mẫu doanh nhân cầm tablet sang trọng dưới chân cột 1 giống ảnh mẫu ban đầu của bồ
+                  colImageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600',
+                  showSlider: false,
+                  members: []
+                },
+                {
+                  colTitle: 'CƠ CẤU TỔ CHỨC',
+                  colText: '',
+                  colImageUrl: '', // Cột này không cần ảnh dưới chân vì đã có list nhân sự
+                  showSlider: true,
+                  members: [
+                    {
+                      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200',
+                      name: 'Trần Văn Khang',
+                      roleCLB: 'Ủy viên BCH',
+                      roleBiz: 'Tổng Giám đốc',
+                      bizName: 'Công ty CP Logistics Đồng Tháp'
+                    },
+                    {
+                      avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200',
+                      name: 'Đỗ Thu Trang',
+                      roleCLB: 'Thủ quỹ CLB',
+                      roleBiz: 'Giám đốc Tài chính',
+                      bizName: 'Công ty TNHH Sen Việt'
+                    },
+                    {
+                      avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=200',
+                      name: 'Vũ Hoàng Long',
+                      roleCLB: 'Ủy viên BCH',
+                      roleBiz: 'Giám đốc Điều hành',
+                      bizName: 'Công ty Công nghệ số Mekong'
+                    }
+                  ]
+                }
+              ]
+            },
+
+            render: ({ background, columns = [] }) => {
+              const bgStyle = {
+                padding: '80px 20px',
+                width: '100%',
+                minHeight: '600px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxSizing: 'border-box'
+              };
+
+              if (background.type === 'color') {
+                if (background.color && background.color.includes('gradient')) { bgStyle.background = background.color; } 
+                else { bgStyle.backgroundColor = background.color || '#ffffff'; }
+              } else if (background.type === 'image' && background.imageUrl) {
+                bgStyle.backgroundImage = `url('${background.imageUrl}')`;
+                bgStyle.backgroundSize = 'cover';
+                bgStyle.backgroundPosition = 'center';
+              }
 
               return React.createElement(
-                'section', 
-                { style: { ...bgStyle, padding: paddingStyle, border: '1px dashed #ccc' } },
-                React.createElement('div', { style: { maxWidth: '1280px', margin: '0 auto' } }, children)
+                'section',
+                { style: bgStyle },
+                React.createElement(
+                  'div',
+                  { style: { maxWidth: '1200px', width: '100%', display: 'flex', flexWrap: 'wrap', justifyQontent: 'center', gap: '30px' } },
+                  columns.map((col, idx) => {
+                    return React.createElement(
+                      'div',
+                      {
+                        key: idx,
+                        style: {
+                          flex: '1 1 500px',
+                          maxWidth: '580px',
+                          backgroundColor: '#ffffff',
+                          borderRadius: '16px',
+                          padding: '40px',
+                          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)',
+                          boxSizing: 'border-box',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          minHeight: '520px',
+                          overflow: 'hidden' // Khóa ảnh không cho tràn viền bo card
+                        }
+                      },
+                      
+                      React.createElement(
+                        'div',
+                        { style: { display: 'flex', flexDirection: 'column', gap: '20px' } },
+                        // Tiêu đề cột lớn
+                        React.createElement('h3', { style: { margin: 0, fontSize: '22px', fontWeight: '800', color: '#1e3a8a', borderBottom: '2px solid #f3f4f6', paddingBottom: '12px' } }, col.colTitle),
+                        
+                        // Đoạn văn mô tả
+                        col.colText && React.createElement('p', { style: { margin: 0, fontSize: '14px', color: '#4b5563', lineHeight: '1.6', textAlign: 'justify' } }, col.colText),
+                        
+                        // Danh sách nhân sự (Nếu có)
+                        col.members && col.members.length > 0 && React.createElement(
+                          'div',
+                          { style: { display: 'flex', flexDirection: 'column', gap: '16px' } },
+                          col.members.map((member, mIdx) => {
+                            return React.createElement(
+                              'div',
+                              {
+                                key: mIdx,
+                                style: { display: 'flex', alignItems: 'center', gap: '20px', padding: '16px', borderRadius: '12px', border: '1px solid #f3f4f6', backgroundColor: '#f9fafb' }
+                              },
+                              React.createElement('img', {
+                                src: member.avatarUrl || 'https://via.placeholder.com/80',
+                                style: { width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #e5e7eb' },
+                                alt: member.name
+                              }),
+                              React.createElement(
+                                'div',
+                                { style: { display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '13px', color: '#374151' } },
+                                React.createElement('div', {}, React.createElement('strong', { style: { color: '#1f2937' } }, 'Họ tên: '), member.name),
+                                React.createElement('div', {}, React.createElement('strong', { style: { color: '#2563eb' } }, 'Chức vụ CLB: '), member.roleCLB),
+                                React.createElement('div', {}, React.createElement('strong', { style: { color: '#4b5563' } }, 'Chức vụ Doanh nghiệp: '), member.roleBiz),
+                                React.createElement('div', {}, React.createElement('strong', { style: { color: '#4b5563' } }, 'Doanh nghiệp: '), member.bizName)
+                              )
+                            );
+                          })
+                        )
+                      ),
+
+                      // RENDER BỨC ẢNH DƯỚI CHÂN CỘT ĐỘNG THEO YÊU CẦU MỚI
+                      col.colImageUrl && React.createElement(
+                        'div',
+                        { style: { width: '100%', marginTop: '20px', borderRadius: '8px', overflow: 'hidden' } },
+                        React.createElement('img', {
+                          src: col.colImageUrl,
+                          style: { width: '100%', height: '180px', objectFit: 'cover' },
+                          alt: 'Hình ảnh minh họa cột'
+                        })
+                      ),
+
+                      // Thanh điều hướng slider phân trang (Nếu bật)
+                      col.showSlider && React.createElement(
+                        'div',
+                        { style: { display: 'flex', alignItems: 'center', justifyQontent: 'center', gap: '16px', marginTop: '24px', width: '100%', justifyContent: 'center' } },
+                        React.createElement('button', { style: { width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: '#e0f2fe', color: '#0369a1', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' } }, '‹'),
+                        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+                          React.createElement('span', { style: { width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#bae6fd' } }),
+                          React.createElement('span', { style: { width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#bae6fd' } }),
+                          React.createElement('span', { style: { width: '32px', height: '6px', borderRadius: '999px', backgroundColor: '#0c4a6e' } })
+                        ),
+                        React.createElement('button', { style: { width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: '#e0f2fe', color: '#0369a1', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' } }, '›')
+                      )
+
+                    );
+                  })
+                )
               );
             }
-          }
-        }
+          },
+
+          // --- GIỮ CÁC KHỐI CŨ HOÀN CHỈNH ---
+          ChuyenMon: { label: 'Các Ban Chuyên Môn', fields: { background: { type: 'object', objectFields: { type: { type: 'select', options: [{ label: 'Màu đơn sắc', value: 'color' }] }, color: { type: 'text' } } }, titleConfig: { type: 'object', objectFields: { title: { type: 'text' }, subtitle: { type: 'text' } } }, cards: { type: 'array', arrayFields: { iconUrl: { type: 'text' }, text: { type: 'text' }, btnText: { type: 'text' }, btnRadius: { type: 'number' } } } }, defaultProps: { background: { type: 'color', color: 'linear-gradient(135deg, #f3e8ff 0%, #e0f2fe 100%)' }, titleConfig: { title: 'CÁC BAN CHUYÊN MÔN', subtitle: 'CLB DOANH NHÂN ĐỒNG THÁP TẠI TP. HỒ CHÍ MINH' }, cards: [{ iconUrl: 'https://cdn-icons-png.flaticon.com/512/3094/3094833.png', text: 'Ban Kinh tế - Đầu tư', btnText: 'Xem hoạt động →', btnRadius: 9999 }, { iconUrl: 'https://cdn-icons-png.flaticon.com/512/3135/3135789.png', text: 'Ban Văn hóa - Thể thao', btnText: 'Xem hoạt động →', btnRadius: 9999 }, { iconUrl: 'https://cdn-icons-png.flaticon.com/512/1256/1256650.png', text: 'Ban Xã hội - Cộng đồng', btnText: 'Xem hoạt động →', btnRadius: 9999 }, { iconUrl: 'https://cdn-icons-png.flaticon.com/512/9322/9322127.png', text: 'Ban Khởi nghiệp', btnText: 'Xem hoạt động →', btnRadius: 9999 }, { iconUrl: 'https://cdn-icons-png.flaticon.com/512/2885/2885417.png', text: 'Ban Giao thương quốc tế', btnText: 'Xem hoạt động →', btnRadius: 9999 }] }, render: ({ background, titleConfig, cards = [] }) => React.createElement('section', { style: { padding: '80px 20px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', background: background.type === 'color' ? background.color : '#ffffff' } }, React.createElement('div', { style: { marginBottom: '48px', textAlign: 'center' } }, React.createElement('h2', { style: { color: '#1e40af', fontSize: '28px', fontWeight: '800' } }, titleConfig.title), React.createElement('p', { style: { color: '#1d4ed8', fontSize: '13px', fontWeight: '700' } }, titleConfig.subtitle)), React.createElement('div', { style: { maxWidth: '1140px', width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '24px' } }, cards.map((card, idx) => React.createElement('div', { key: idx, style: { width: '320px', padding: '40px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', color: '#ffffff', borderRadius: '50px 0px 50px 0px' } }, React.createElement('div', { style: { width: '64px', height: '64px', marginBottom: '20px' } }, React.createElement('img', { src: card.iconUrl, style: { width: '100%', height: '100%', filter: 'brightness(0) invert(1)' } })), React.createElement('h3', { style: { fontSize: '18px', fontWeight: '700', minHeight: '44px', display: 'flex', alignItems: 'center' } }, card.text), React.createElement('a', { href: '#', style: { padding: '8px 24px', border: '1px solid rgba(255, 255, 255, 0.4)', backgroundColor: 'rgba(255, 255, 255, 0.15)', color: '#ffffff', fontSize: '12px', borderRadius: `${card.btnRadius}px`, textDecoration: 'none' } }, card.btnText))))) },
+          Hero: { label: 'Hero Banner (Sen Hồng)', fields: { background: { type: 'object', objectFields: { type: { type: 'select', options: [{ label: 'Màu đơn sắc', value: 'color' }] } } }, boxConfig: { type: 'object', objectFields: { boxRadius: { type: 'number' }, align: { type: 'select', options: [{ label: 'Bên trái', value: 'justify-start' }] } } }, titleConfig: { type: 'object', objectFields: { text: { type: 'text' }, color: { type: 'text' }, size: { type: 'select', options: [{ label: 'Lớn', value: 'text-5xl' }] }, subtitle: { type: 'text' }, desc: { type: 'textarea' } } }, buttonConfig: { type: 'object', objectFields: { text: { type: 'text' }, bgColor: { type: 'text' }, borderRadius: { type: 'number' } } } }, defaultProps: { background: { type: 'color', color: '#ffffff' }, boxConfig: { boxRadius: 30, align: 'justify-start' }, titleConfig: { text: 'Sen Hồng', color: '#facc15', size: 'text-5xl', subtitle: 'LAN TỎA GIÁ TRỊ ĐẤT', desc: 'CLB Doanh nhân Đồng Tháp tại TPHCM quy tụ những người con quê hương...' }, buttonConfig: { text: 'Tham gia cộng đồng', bgColor: '#1d4ed8', borderRadius: 9999 } }, render: ({ background, boxConfig, titleConfig, buttonConfig }) => React.createElement('section', { className: "relative py-32 px-4 overflow-hidden min-h-[600px] flex items-center w-full" }, React.createElement('div', { className: `relative mx-auto max-w-7xl w-full flex ${boxConfig.align}` }, React.createElement('div', { className: "w-full max-w-2xl p-10 bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl flex flex-col items-start text-white", style: { borderRadius: `${boxConfig.boxRadius}px` } }, React.createElement('p', { className: "text-xs md:text-sm font-semibold tracking-widest uppercase mb-3 text-white/90" }, titleConfig.subtitle), React.createElement('h1', { className: `font-bold mb-4 leading-tight ${titleConfig.size}`, style: { color: titleConfig.color } }, titleConfig.text), React.createElement('p', { className: "text-sm md:text-base mb-6 opacity-95 text-white max-w-xl leading-relaxed text-left whitespace-pre-wrap" }, titleConfig.desc), React.createElement('div', { className: "w-full flex justify-start" }, React.createElement('a', { href: "#", className: "px-8 py-2.5 font-medium flex items-center justify-center text-sm text-white", style: { backgroundColor: buttonConfig.bgColor, borderRadius: `${buttonConfig.borderRadius}px` } }, buttonConfig.text))))) },
+          Heading: { label: 'Tiêu đề', fields: { content: { type: 'text' } }, render: ({ content }) => React.createElement('h1', {}, content) },
+          Text: { label: 'Văn bản', fields: { content: { type: 'textarea' } }, render: ({ content }) => React.createElement('p', {}, content) },
+          Image: { label: 'Hình ảnh', fields: { src: { type: 'text' } }, render: ({ src }) => React.createElement('img', { src }) },
+          Section: { label: 'Khoảng (Section)', fields: { color: { type: 'text' } }, render: ({ children }) => React.createElement('section', {}, children) }
+        },
+        categoryGroups: [
+          { title: 'Khối Đặc Biệt CLB', components: ['Hero', 'ChuyenMon', 'ThongTinCLB'] },
+          { title: 'Linh Kiện Cơ Bản', components: ['Heading', 'Text', 'Image', 'Section'] }
+        ]
       };
 
-      // Vẽ bảng điều khiển lên màn hình trình duyệt
       const container = document.getElementById('puck-root');
       if (container) {
         const root = createRoot(container);
-        root.render(
-          React.createElement(Puck, {
-            config: puckConfigLocal,
-            data: { content: [], root: {} },
-            onChange: (data) => console.log("Data thay đổi:", data)
-          })
-        );
+        root.render(React.createElement(Puck, { config: puckConfigLocal, data: { content: [], root: {} } }));
       }
     </script>
 
     <style is:global>
-      html, body, #puck-root {
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        width: 100vw;
-        overflow: hidden;
-      }
+      html, body, #puck-root { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; }
     </style>
   </body>
 </html>
