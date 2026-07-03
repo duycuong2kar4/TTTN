@@ -1,53 +1,45 @@
 import React from 'react';
 
-const AdminHero = () => {
-  // Gán cứng thông số giả lập khít rịt theo thiết kế Ảnh 1
-  const title = "Sen Hồng";
-  const titleColor = "#facc15"; // Màu chữ vàng rực
-  const subtitle = "LAN TỎA GIÁ TRỊ ĐẤT";
-  const desc = "CLB Doanh nhân Đồng Tháp tại TPHCM quy tụ những người con quê hương Đất Sen Hồng. Với tinh thần Hợp tác - Đổi mới - Phát triển, CLB đóng vai trò là cầu nối chiến lược, hợp tác, thúc đẩy giá trị kinh doanh và lan toả sẻ chia nghĩa tình quê hương.";
-  const buttonText = "Tham gia cộng đồng";
-  
-  // Link ảnh dải lụa sóng 3D trừu tượng làm nền phía sau
-  const imageUrl = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920";
+// Hero component — banner với title, subtitle, buttons.
+const AdminHero = ({ title, subtitle, buttons = [], background = {}, layout = {} }) => {
+  const alignClass = layout.align === 'left' ? 'text-left' : layout.align === 'right' ? 'text-right' : 'text-center';
+  const alignFlex = layout.align === 'left' ? 'justify-start' : layout.align === 'right' ? 'justify-end' : 'justify-center';
+  const alignItems = layout.align === 'left' ? 'items-start' : layout.align === 'right' ? 'items-end' : 'items-center';
+
+  const getBackgroundStyle = () => {
+    const bg = background || {};
+    if (bg.type === 'gradient') {
+      return { background: `linear-gradient(${bg.gradientDirection || 'to bottom right'}, ${bg.gradientFrom || '#667eea'}, ${bg.gradientTo || '#764ba2'})` };
+    }
+    if (bg.type === 'image' && bg.imageUrl) {
+      return { backgroundImage: `url('${bg.imageUrl}')`, backgroundSize: 'cover', backgroundPosition: 'center' };
+    }
+    return { backgroundColor: bg.color || '#ffffff' };
+  };
+
+  const getButtonClass = (style) => {
+    const base = 'inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all';
+    switch (style) {
+      case 'primary': return `${base} bg-blue-600 text-white hover:bg-blue-700`;
+      case 'outline': return `${base} border-2 border-white text-white hover:bg-white hover:text-gray-900`;
+      default: return `${base} bg-gray-200 text-gray-800 hover:bg-gray-300`;
+    }
+  };
 
   return (
-    <section 
-      className="relative py-32 px-4 overflow-hidden min-h-[600px] flex items-center" 
-      style={{ backgroundImage: `url('${imageUrl}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-    >
-      <div className="relative mx-auto max-w-7xl w-full flex justify-start">
-        
-        {/* KHỐI HỘP MỜ HIỆU ỨNG KÍNH (CỤM SEN HỒNG) NẰM BÊN TRÁI */}
-        <div 
-          className="w-full max-w-2xl p-10 bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl flex flex-col items-start"
-          style={{ borderRadius: '30px' }} // Bo góc khối mờ 30px theo thiết kế
-        >
-          {/* Chữ nhỏ trên cùng */}
-          <p className="text-xs md:text-sm font-semibold tracking-widest uppercase mb-3 text-white/90">
-            {subtitle}
-          </p>
-          
-          {/* Tiêu đề chính */}
-          <h1 className="font-bold mb-4 leading-tight text-5xl" style={{ color: titleColor }}>
-            {title}
-          </h1>
-
-          {/* Đoạn mô tả dài */}
-          <p className="text-sm md:text-base mb-6 opacity-95 text-white max-w-xl leading-relaxed text-left whitespace-pre-wrap">
-            {desc}
-          </p>
-          
-          {/* Nút bấm bo tròn tuyệt đối màu xanh */}
-          <a 
-            href="#" 
-            className="px-8 py-2.5 font-medium transition-all duration-200 hover:scale-105 shadow-md flex items-center justify-center text-sm text-white bg-blue-600"
-            style={{ borderRadius: '9999px' }}
-          >
-            {buttonText}
-          </a>
-        </div>
-
+    <section className="relative py-32 px-4 overflow-hidden" style={getBackgroundStyle()}>
+      <div className={`relative mx-auto max-w-7xl ${alignClass} flex flex-col ${alignItems}`}>
+        {title && <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white">{title}</h1>}
+        {subtitle && <p className="text-lg md:text-xl mb-6 opacity-90 text-white max-w-3xl">{subtitle}</p>}
+        {buttons && buttons.length > 0 && (
+          <div className={`flex flex-wrap ${alignFlex} gap-4 mb-8`}>
+            {buttons.map((btn, idx) => (
+              <a key={idx} href={btn.url || '#'} className={getButtonClass(btn.style || 'primary')}>
+                {btn.text}
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
