@@ -253,43 +253,37 @@ export const puckComponentsRender = {
       </section>
     );
   },
- About: () => (
-    <section className="w-full bg-white py-24 px-6 md:px-12 lg:px-16 flex flex-col lg:flex-row gap-12 lg:gap-16 items-center text-left max-w-[1440px] mx-auto">
+
+  About: () => (
+    <section id="about-block" className="w-full bg-white py-24 px-6 md:px-12 lg:px-16 flex flex-col lg:flex-row gap-12 lg:gap-16 items-center text-left max-w-[1440px] mx-auto scroll-mt-12">
       <div className="w-full lg:w-[50%] relative p-6 bg-[#d1f5e3] rounded-[2rem] shadow-sm shrink-0">
         <img src="/hexagon-office.jpg" alt="Office" className="w-full h-[460px] object-cover rounded-2xl shadow-sm" />
         <div className="absolute bottom-3 right-3 translate-x-2 translate-y-2 bg-white p-6 rounded-2xl shadow-xl border border-slate-100/60 z-20 w-full max-w-[310px] flex flex-col gap-2">
-          <p className="text-sm font-bold text-slate-800 italic leading-relaxed text-left">
-            "Làm ngày, làm đêm, làm thêm ngày nghỉ ^_^"
-          </p>
-          <span className="text-[11px] font-black text-[#eab308] text-right block tracking-wider uppercase">
-            — HEXAGON CULTURE
-          </span>
+          <p className="text-sm font-bold text-slate-800 italic leading-relaxed text-left">"Làm ngày, làm đêm, làm thêm ngày nghỉ ^_^"</p>
+          <span className="text-[11px] font-black text-[#eab308] text-right block tracking-wider uppercase">— HEXAGON CULTURE</span>
         </div>
       </div>
-
       <div className="w-full lg:w-[50%] flex flex-col gap-6 pl-0 lg:pl-4">
-        <h2 className="text-3xl font-black text-[#0f172a] tracking-tight border-b-4 border-emerald-500 pb-2 w-max">
-          Về Hexagon
-        </h2>
-        <p className="text-base text-slate-600 leading-relaxed font-medium">
-          Hexagon Corporation – Công nghệ tiên phong, nơi chúng tôi không ngừng kiến tạo và đổi mới để mang đến những giá trị vượt trội trong kỷ nguyên số. Chúng tôi đồng hành cùng doanh nghiệp trên hành trình chuyển đổi số toàn diện.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-2">
-          <div className="p-5 bg-slate-50 rounded-xl border border-slate-100/80 shadow-2xs">
-            <h4 className="font-bold text-emerald-700 text-lg mb-1.5">Sứ mệnh</h4>
-            <p className="text-sm text-slate-500 font-medium leading-relaxed">Kiến tạo tương lai số bằng các giải pháp tiên tiến.</p>
+        <h2 className="text-3xl font-black text-[#0f172a] tracking-tight border-b-4 border-emerald-500 pb-2 w-max">Về Hexagon</h2>
+        <p className="text-sm text-slate-600 leading-relaxed font-medium">Hexagon Corporation – Công nghệ tiên phong, nơi chúng tôi không ngừng kiến tạo và đổi mới để mang đến những giá trị vượt trội trong kỷ nguyên số. Với tầm nhìn đa chiều và khát vọng vươn tầm, Hexagon tự hào là đối tác tin cậy, đồng hành cùng bạn trên hành trình chinh phục những đỉnh cao công nghệ.</p>
+        
+        {/* Đã thêm 4 ô cấu trúc chuẩn theo thiết kế */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+          <div className="p-4 bg-slate-50 rounded-xl shadow-2xs border border-slate-100/60">
+            <h4 className="font-bold text-emerald-700 text-sm mb-1">Sứ mệnh</h4>
+            <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Kiến tạo tương lai số bằng các giải pháp tiên tiến.</p>
           </div>
-          <div className="p-5 bg-slate-50 rounded-xl border border-slate-100/80 shadow-2xs">
-            <h4 className="font-bold text-emerald-700 text-lg mb-1.5">Tầm nhìn</h4>
-            <p className="text-sm text-slate-500 font-medium leading-relaxed">Trở thành biểu tượng về hệ sinh thái công nghệ đổi mới.</p>
+          <div className="p-4 bg-slate-50 rounded-xl shadow-2xs border border-slate-100/60">
+            <h4 className="font-bold text-emerald-700 text-sm mb-1">Tầm nhìn</h4>
+            <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Trở thành biểu tượng về hệ sinh thái công nghệ đổi mới.</p>
           </div>
-          <div className="p-5 bg-slate-50 rounded-xl border border-slate-100/80 shadow-2xs">
-            <h4 className="font-bold text-emerald-700 text-lg mb-1.5">Giá trị cốt lõi</h4>
-            <p className="text-sm text-slate-500 font-medium leading-relaxed">Đổi mới - Đồng hành - Tiên phong - Minh bạch.</p>
+          <div className="p-4 bg-slate-50 rounded-xl shadow-2xs border border-slate-100/60">
+            <h4 className="font-bold text-emerald-700 text-sm mb-1">Giá trị cốt lõi</h4>
+            <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Đổi mới - Đồng hành - Tiên phong - Minh bạch.</p>
           </div>
-          <div className="p-5 bg-slate-50 rounded-xl border border-slate-100/80 shadow-2xs">
-            <h4 className="font-bold text-emerald-700 text-lg mb-1.5">Nền tảng</h4>
-            <p className="text-sm text-slate-500 font-medium leading-relaxed">Hệ sinh thái đa ngành, vững chắc và linh hoạt.</p>
+          <div className="p-4 bg-slate-50 rounded-xl shadow-2xs border border-slate-100/60">
+            <h4 className="font-bold text-emerald-700 text-sm mb-1">Nền tảng</h4>
+            <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Hệ sinh thái đa ngành, vững chắc và linh hoạt.</p>
           </div>
         </div>
       </div>
@@ -393,29 +387,42 @@ export const puckComponentsRender = {
       <section id="contact-block" className="w-full py-16 px-8 flex flex-col md:flex-row gap-10 text-left max-w-6xl mx-auto items-center scroll-mt-12">
         <div className="w-full md:w-1/2 flex flex-col gap-4">
           <h2 className="text-2xl font-black text-slate-900">Liên hệ với chúng tôi</h2>
-          <p className="text-xs text-slate-500 leading-relaxed">Sẵn sàng cho dự án tiếp theo? Đội ngũ chuyên gia của Hexagon luôn ở đây để lắng nghe và đưa ra giải pháp tốt nhất cho bạn.</p>
-          <div className="flex flex-col gap-4 text-xs text-slate-700 font-medium mt-3">
+          <p className="text-xs text-slate-500 leading-relaxed mb-2">Sẵn sàng cho dự án tiếp theo? Đội ngũ chuyên gia của Hexagon luôn ở đây để lắng nghe và đưa ra giải pháp tốt nhất cho bạn.</p>
+          
+          {/* Đã thêm Hotline và cấu trúc chuẩn cho phần Liên hệ */}
+          <div className="flex flex-col gap-5 text-xs text-slate-700 font-medium">
             <div className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 font-bold">📍</div>
-              <p><b>Trụ sở chính:</b> 615 Âu Cơ, Phường Tân Phú, TP. Hồ Chí Minh</p>
+              <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 font-bold text-sm">📍</div>
+              <div className="flex flex-col"><p className="font-bold text-slate-900 mb-0.5">Trụ sở chính</p><p className="text-[11px] text-slate-500">615 Âu Cơ, Phường Tân Phú, TP. Hồ Chí Minh</p></div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 font-bold">✉️</div>
-              <p><b>Email:</b> info@hexagon.xyz</p>
+              <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 font-bold text-sm">✉️</div>
+              <div className="flex flex-col"><p className="font-bold text-slate-900 mb-0.5">Email</p><p className="text-[11px] text-slate-500">info@hexagon.xyz</p></div>
             </div>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 font-bold text-sm">📞</div>
+              <div className="flex flex-col"><p className="font-bold text-slate-900 mb-0.5">Hotline</p><p className="text-[11px] text-slate-500">096 446 0333</p></div>
+            </div>
+          </div>
+
+          {/* Đã thêm 4 nút mạng xã hội */}
+          <div className="flex items-center gap-3 mt-4 border-t border-slate-100 pt-5">
+            {['Facebook', 'Linkedin', 'YouTube', 'Zalo'].map(social => (
+              <button key={social} className="px-4 py-1.5 bg-[#f0fdf4] text-emerald-600 rounded-lg text-[10px] font-bold border border-emerald-100 hover:bg-emerald-100 transition-colors cursor-pointer">{social}</button>
+            ))}
           </div>
         </div>
         <div className="w-full md:w-1/2 border border-slate-100 p-1.5 bg-white rounded-2xl shadow-xs">
-          <img src="/google-maps-demo.png" alt="Maps" className="w-full h-[270px] object-cover rounded-xl" />
+          <img src="/google-maps-demo.png" alt="Maps" className="w-full h-[320px] object-cover rounded-xl" />
         </div>
       </section>
       <footer className="w-full bg-[#052e16] text-emerald-200/60 text-[11px] font-medium py-4 text-center border-t border-emerald-950 select-none">Copyright 2026 © Hexagon Corporation. All rights reserved.</footer>
     </div>
   )
-};
+}; // <-- DẤU } NÀY RẤT QUAN TRỌNG ĐỂ KHÔNG BỊ LỖI [PARSE_ERROR]
 
 // =========================================================================
-// 3. KHỐI CHI TIẾT LĨNH VỰC HOẠT ĐỘNG (SECTOR DETAIL VIEW) - KHÔI PHỤC ĐẦY ĐỦ 100%
+// 3. KHỐI CHI TIẾT LĨNH VỰC HOẠT ĐỘNG (SECTOR DETAIL VIEW)
 // =========================================================================
 export const HexagonSectorDetail = ({ slug, onBack }: { slug: string; onBack: () => void }) => {
   const current = sectorDatabase[slug] || sectorDatabase['giai-phap-cong-nghe'];
@@ -426,7 +433,7 @@ export const HexagonSectorDetail = ({ slug, onBack }: { slug: string; onBack: ()
 
   return (
     <div className="w-full bg-white text-left font-sans select-none antialiased flex flex-col min-h-screen">
-      <div className="flex-1 w-full pt-6 pb-20 px-6 md:px-12 lg:px-24 max-w-[1440px] mx-auto flex flex-col gap-12">
+      <div className="flex-1 w-full pt-10 pb-20 px-6 md:px-12 lg:px-24 max-w-[1440px] mx-auto flex flex-col gap-16">
         
         {/* Breadcrumb điều hướng */}
         <div className="text-xs text-slate-400 font-medium tracking-wide">
@@ -447,42 +454,50 @@ export const HexagonSectorDetail = ({ slug, onBack }: { slug: string; onBack: ()
           </div>
         </div>
 
-        {/* Section Highlights - Đặc điểm nổi bật */}
-        <div className="w-full flex flex-col gap-6 mt-4">
-          <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight border-l-4 border-emerald-600 pl-3 uppercase">Đặc điểm nổi bật</h2>
+        {/* Section Highlights - Đặc điểm nổi bật (Theo thiết kế hình ảnh) */}
+        <div className="w-full flex flex-col gap-8">
+          <h2 className="text-2xl md:text-3xl font-black text-[#0f5132] tracking-tight uppercase flex items-center gap-3">
+            <div className="w-1.5 h-8 bg-[#0f5132]"></div>
+            ĐẶC ĐIỂM NỔI BẬT
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {current.highlights.map((item, idx) => (
-              <div key={idx} className="p-6 bg-slate-50 border border-slate-100 rounded-2xl shadow-2xs flex flex-col gap-3 hover:shadow-xs transition-all duration-300">
-                <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 font-black text-sm">0{idx + 1}</div>
-                <h3 className="font-black text-sm md:text-base text-slate-950 leading-snug tracking-tight">{item.title}</h3>
-                <p className="text-xs md:text-sm text-slate-600 leading-relaxed font-medium">{item.desc}</p>
+            {current.highlights.map((item: any, idx: number) => (
+              <div key={idx} className="p-8 bg-[#f8fafc] rounded-2xl flex flex-col gap-4">
+                <div className="w-10 h-10 rounded-full bg-[#d1fae5] flex items-center justify-center text-[#047857] font-black text-sm">
+                  0{idx + 1}
+                </div>
+                <h3 className="font-black text-base text-slate-950 leading-snug">{item.title}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed font-medium">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Section Quy trình triển khai */}
-        <div className="w-full flex flex-col gap-6 mt-4">
-          <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight border-l-4 border-emerald-600 pl-3 uppercase">Quy trình triển khai</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
-            {current.steps.map((step, idx) => (
-              <div key={idx} className="p-5 bg-white border border-slate-100 rounded-2xl shadow-2xs flex items-start gap-4 relative">
-                <div className="w-9 h-9 rounded-full bg-amber-50 border border-amber-200 text-amber-600 font-black text-xs shrink-0 flex items-center justify-center shadow-2xs">
+        {/* Section Quy trình triển khai (Theo thiết kế hình ảnh) */}
+        <div className="w-full flex flex-col gap-8">
+          <h2 className="text-2xl md:text-3xl font-black text-[#0f5132] tracking-tight uppercase flex items-center gap-3">
+            <div className="w-1.5 h-8 bg-[#0f5132]"></div>
+            QUY TRÌNH TRIỂN KHAI
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {current.steps.map((step: string, idx: number) => (
+              <div key={idx} className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full border border-amber-200 text-amber-500 font-black text-sm shrink-0 flex items-center justify-center">
                   {idx + 1}
                 </div>
-                <div className="flex flex-col gap-1.5 pt-1">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Bước {idx + 1}</span>
-                  <p className="text-xs md:text-sm font-black text-slate-800 leading-snug tracking-tight">{step}</p>
+                <div className="flex flex-col gap-1 pt-0.5">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">BƯỚC {idx + 1}</span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">{step}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Nút quay lại trang chủ dưới cùng */}
-        <div className="w-full flex justify-center mt-6">
-          <button onClick={onBack} className="px-6 py-3 bg-[#0a5c43] hover:bg-[#0d7c5a] text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-md transition-colors cursor-pointer">
-            ❮ Quay lại trang chủ
+        {/* Nút quay lại trang chủ dưới cùng (Nền xanh lá sậm) */}
+        <div className="w-full flex justify-center mt-4">
+          <button onClick={onBack} className="px-8 py-3.5 bg-[#0f5132] hover:bg-[#0a3622] text-white font-black text-sm uppercase tracking-widest rounded-xl transition-colors cursor-pointer flex items-center gap-2 shadow-md">
+            <span>❮</span> QUAY LẠI TRANG CHỦ
           </button>
         </div>
 
