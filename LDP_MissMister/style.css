@@ -1,0 +1,300 @@
+
+body, html { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0d0121; }
+.cursor-pointer { cursor: pointer; }
+.hover-scale { transition: transform 0.2s ease-in-out; }
+.hover-scale:hover { transform: scale(1.02); }
+.top-nav { 
+    background-color: #8b008b; 
+    height: auto; 
+    padding: 10px 0; 
+}
+
+.logo-top {
+    margin-left: 70px; 
+}
+.header-icon {
+    height: 70px; 
+    width: auto;
+}
+.btn-login { 
+    background: linear-gradient(to bottom, #4facfe, #00f2fe); 
+    color: white; 
+    font-weight: bold; 
+    border: none; 
+    border-radius: 4px; 
+    font-size: 16px; /* SỬA Ở ĐÂY: Tăng từ 13px lên 16px hoặc 18px */
+    box-shadow: 0 0 8px rgba(0, 242, 254, 0.6); 
+}
+.main-wrapper {
+    background-image: url('./TN/BGTRANGVOTING.png');
+    background-size: 100% auto; 
+    background-position: top center; 
+    background-repeat: no-repeat;
+    min-height: 1800px; 
+    width: 100%;
+}
+
+
+.hero-arena {
+    position: relative;
+    width: 100%;
+    max-width: 1920px;
+    height: 1050px; /* Độ cao để chứa trọn bộ Logo và Nút, đẩy Form xuống dưới */
+    margin: 0 auto;
+}
+
+/* Logo Hào Khí (W:465, H:465, Top:-100px) */
+.logo-hao-khi {
+    position: absolute;
+    top: -180px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 465px;
+    height: 465px;
+    object-fit: contain;
+    z-index: 5;
+    filter: drop-shadow(0 0 20px rgba(0, 242, 254, 0.4));
+}
+
+/* Logo Miss Mister (W:750, H:469, Top:346px) */
+.logo-miss-mister {
+    position: absolute;
+    top: 300px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 750px;
+    height: 469px;
+    object-fit: contain;
+    z-index: 6;
+}
+
+/* Dàn nút bấm đối xứng ngang */
+.hero-nav {
+    position: absolute;
+    top: 800px; /* Canh vừa khít phía dưới Logo Miss Mister */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Để cái khiên nhô lên, ta sẽ dùng align-items: center và margin-bottom cho khiên */
+    gap: 15px;
+    width: 100%;
+    z-index: 10;
+}
+/* Thanh khung nền phía sau các nút */
+.nav-bg-frame {
+    position: absolute;
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1439px; 
+    height: 114px; 
+    z-index: -1; 
+    pointer-events: none;
+    margin-top: 60px; /* THÊM DÒNG NÀY: Tăng lên 20px hoặc 30px nếu muốn nó tuột xuống sâu hơn nữa */
+}
+
+.hero-btn {
+    width: 246px; /* Kích thước tương đối cho các nút con */
+    height: 89px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.hero-btn:hover { transform: scale(1.05) translateY(-3px); }
+
+/* Nút Tham Gia Ngay (W:274, H:254) */
+.btn-vote {
+    width: 274px;
+    height: 254px;
+    object-fit: contain;
+    cursor: pointer;
+    transition: transform 0.2s;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+    margin-bottom: 30px; /* Đẩy nút khiên nhô cao hơn các nút bên cạnh */
+}
+.btn-vote:hover { transform: scale(1.08); }
+
+
+.form-arena {
+    position: relative;
+    z-index: 15;
+}
+
+.title-dkdt { 
+    height: 141px; /* Tăng từ 50px lên 90px (hoặc 100px tùy mắt bồ) */
+    width: auto;
+    margin-top: 20px; /* Đẩy nó cách xa cụm nút ở trên ra một chút */
+    margin-bottom: 30px; 
+    filter: drop-shadow(0 0 10px rgba(200, 0, 255, 0.4)); /* Thêm tí bóng viền sáng cho nổi bật giống demo */
+}
+
+/* CSS Form Vát Góc */
+.custom-form .custom-input { 
+    background-color: white; border: none; border-radius: 0 !important; padding: 12px 15px;
+    font-size: 13px; color: #333; font-weight: 500;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.custom-form .custom-input:focus { outline: none; box-shadow: none; background-color: #f0f8ff; }
+
+.radio-img { height: 38px; transition: all 0.3s ease; }
+.action-btn { height: 50px; cursor: pointer; transition: transform 0.2s; }
+.action-btn:hover { transform: scale(1.08); }
+
+/* Modal */
+.custom-modal .modal-content { background: transparent; border: none; }
+/* Nút đóng Popup */
+.btn-close-invisible { 
+    position: absolute; 
+    width: 60px;  /* Tăng lên 60px cho dễ bấm */
+    height: 60px; 
+   background-color: transparent;/* THÊM MÀU ĐỎ TRONG SUỐT ĐỂ DỄ CANH CHỈNH */
+    border: none; 
+    cursor: pointer; 
+    z-index: 1050; /* Đẩy nó lên lớp cao nhất */
+}
+.content-container {
+    max-width: 1600px !important; 
+}
+/* 2. Tăng size cụm text "Nhân vật, Bang hội..." (Figma: 24px) */
+.user-info {
+    font-size: 24px !important;
+}
+
+/* 3. Tăng size 2 nút chọn "Thi Miss / Thi Misster" (Figma: Height 65px) */
+.radio-img {
+    height: 65px !important;
+}
+
+/* 4. Tăng size các ô nhập liệu Input (Figma: Height 59px) */
+.custom-form .custom-input {
+    height: 59px;
+    font-size: 16px; /* Cho chữ bên trong to lên tương xứng */
+}
+
+/* 5. Tăng size dàn nút Đồng Ý / Hủy Bỏ ở dưới cùng cho cân đối */
+.action-btn {
+    height: 65px; 
+}
+/* Nút tròn Radio chọn giới tính */
+.custom-radio {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    accent-color: #00f2fe; /* Đổi màu xanh cho tone-sur-tone, hoặc xóa dòng này để nó màu mặc định */
+}
+
+/* Tăng size cụm chữ CMND */
+.cmnd-label {
+    font-size: 18px !important;
+}
+
+
+.text-note {
+    font-size: 16px !important;
+}
+
+
+.custom-form .mb-3 {
+    margin-bottom: 1.5rem !important; 
+}
+
+
+.action-btn {
+    width: 250px !important;
+    height: 75px !important;
+}
+.action-container {
+    gap: 40px; 
+}
+
+.upload-box-main {
+    width: 815px !important;
+    height: 495px !important;
+    max-width: 100%; 
+    margin-bottom: 20px !important; 
+}
+
+
+.upload-box-main + .d-flex {
+    max-width: 803px !important;
+    width: 100%;
+    justify-content: space-between !important;
+    gap: 10px !important; 
+}
+
+
+.upload-box-sub {
+    width: 255px !important; 
+    height: 190px !important;
+}
+
+
+.upload-box-main label, .upload-box-sub label {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    display: block;
+}
+.upload-box-main img, .upload-box-sub img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: fill; 
+}
+
+
+
+.custom-form {
+    width: 100%;
+    max-width: 512px;
+}
+
+
+.custom-form input.custom-input,
+.custom-form select.custom-input {
+    height: 59px !important;
+}
+
+
+.custom-form textarea.custom-input {
+    height: 112px !important;
+    resize: none; 
+}
+
+
+.custom-form .row {
+    --bs-gutter-x: 4px !important; 
+}
+
+
+.custom-form .custom-input::placeholder {
+    color: #a87eb6; 
+    font-weight: 500;
+}
+
+
+.action-container {
+    gap: 12px !important; 
+    justify-content: space-between !important;
+}
+
+
+.hero-btn, .btn-vote {
+    transition: all 0.3s ease-in-out !important; 
+}
+
+.hero-btn:hover {
+    
+    filter: hue-rotate(30deg) brightness(1.2) saturate(1.3) !important; 
+    cursor: pointer;
+}
+
+
+.btn-vote:hover {
+    filter: brightness(1.3) saturate(1.2) drop-shadow(0 0 20px rgba(255, 50, 200, 0.8)) !important; 
+    transform: scale(1.08) !important; 
+    cursor: pointer;
+}
+
+.content-container > .row {
+    align-items: flex-start !important;
+}
