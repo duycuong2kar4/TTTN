@@ -360,8 +360,8 @@
                     <span id="giftcodeText" class="fw-medium text-white fs-4" style="letter-spacing: 1px;">LOADING...</span>
                 </div>
                 
-                <!-- Nút SAO CHÉP: Dùng ảnh button.png -->
-                <div class="hover-scale cursor-pointer d-inline-block" id="btnCopyCode" style="width: 250px; height: 75px;">
+                <!-- ĐÃ SỬA: Thêm position-relative vào class của div này -->
+                <div class="hover-scale cursor-pointer d-inline-block position-relative" id="btnCopyCode" style="width: 250px; height: 75px;">
                     <img src="./TN/button.png" class="w-100 h-100 object-fit-contain" alt="SAO CHÉP">
                     <span class="position-absolute fw-bold text-white fs-5" style="top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">SAO CHÉP</span>
                 </div>
@@ -506,11 +506,11 @@
                             </div>
                         </div>
                         
-                        <!-- 2 Nút Hành Động (Đúng chuẩn 180x54) -->
-                        <div class="d-flex gap-2 mt-auto justify-content-start">
-                            <img src="./TN/buttontanghoa.png" class="cursor-pointer hover-scale" data-bs-toggle="modal" data-bs-target="#successVoteModal" style="width: 180px; height: 54px;">
-                            <img src="./TN/buttonlstang.png" class="cursor-pointer hover-scale" data-bs-toggle="modal" data-bs-target="#historyModal" style="width: 180px; height: 54px;">
-                        </div>
+                        
+<div class="d-flex gap-2 mt-auto justify-content-start" style="margin-bottom: 45px;">
+    <img src="./TN/buttontanghoa.png" class="cursor-pointer hover-scale" data-bs-toggle="modal" data-bs-target="#successVoteModal" style="width: 180px; height: 54px;">
+    <img src="./TN/buttonlstang.png" class="cursor-pointer hover-scale" data-bs-toggle="modal" data-bs-target="#historyModal" style="width: 180px; height: 54px;">
+</div>
                         
                     </div>
                 </div>
