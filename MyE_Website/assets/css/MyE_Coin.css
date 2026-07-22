@@ -1,0 +1,180 @@
+/* ============ THIẾT LẬP CHUNG ============ */
+body {
+    font-family: 'Montserrat', sans-serif;
+}
+.cursor-pointer { cursor: pointer; }
+.hover-scale { transition: transform 0.2s ease-in-out; }
+.hover-scale:hover { transform: scale(1.03); }
+
+/* ============ HEADER ============ */
+.nav-link {
+    color: #093A88;
+    font-size: 24px; 
+    font-weight: 400; 
+    line-height: 24px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.nav-link.active {
+    color: #FF7A00 !important;
+    font-weight: 700; 
+    border-bottom: 2px solid #FF7A00;
+}
+.btn-login {
+    background: linear-gradient(90deg, #FF9900, #FF5500);
+    border: none;
+}
+
+/* ============ USER DROPDOWN ============ */
+.dropdown-menu {
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.dropdown-item {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #282828;
+    transition: all 0.2s ease-in-out;
+}
+
+.dropdown-item i {
+    color: #093A88;
+    font-size: 18px;
+    width: 26px; 
+}
+
+.dropdown-item:hover {
+    background-color: #F8F9FA;
+    color: #FF7A00;
+}
+
+.dropdown-item:hover i {
+    color: #FF7A00;
+}
+
+/* ============ HERO BANNER ============ */
+.hero-section {
+    background-color: #000D2D; 
+    width: 100%;
+}
+
+.banner-wrapper {
+    max-width: 100%; 
+    width: 92%; 
+    position: relative;
+    border-radius: 16px; 
+}
+
+.banner-img {
+    width: 100%; 
+    height: auto;
+    border-radius: 16px;
+    border: 2px solid rgba(59, 130, 246, 0.4); 
+    box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.6); 
+}
+
+.btn-history {
+    width: 300px;
+    height: 55px;
+    background-color: rgba(9, 58, 136, 0.5); 
+    border: 2px solid #3B82F6; 
+    border-radius: 8px; 
+    right: 4%; 
+    bottom: 8%; 
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+}
+
+.btn-history:hover {
+    background-color: rgba(59, 130, 246, 0.4); 
+    transform: translateY(-2px);
+    box-shadow: 0px 5px 15px rgba(59, 130, 246, 0.3);
+}
+
+/* ============ TRANG NẠP MYE COIN (CSS ĐẶC THÙ) ============ */
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    color: #6c757d;
+}
+
+/* Thẻ Chọn hình thức nạp */
+.payment-card {
+    height: 200px; /* Chiều cao chuẩn từ Figma */
+    border-radius: 16px !important; /* Bo góc chuẩn từ Figma */
+    border: 1px solid #EAEAEA !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; /* Khoảng cách giữa icon và chữ */
+    transition: all 0.3s ease;
+    background-color: #FFFFFF;
+}
+.payment-card img {
+    width: 95px;
+    height: 95px;
+    object-fit: contain;
+}
+
+.payment-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #282828;
+}
+
+/* Hiệu ứng Hover - Đổ bóng chuẩn thông số Figma (Y:2, Blur:6, #000000 30%) */
+.payment-card:hover {
+    border-color: #3B82F6 !important;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3) !important; 
+    transform: translateY(-5px);
+}
+/* Thẻ Chọn gói nạp */
+.package-card {
+    border: 1px solid #EAEAEA !important;
+}
+
+.package-bg {
+    background: linear-gradient(180deg, #60A5FA 0%, #93C5FD 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.package-bg::after {
+    content: "";
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+/* ============ FOOTER ============ */
+.footer-text p {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400; 
+    font-size: 14px; 
+    color: #282828; 
+    line-height: 24px; 
+}
+/* ============ HƯỚNG DẪN NẠP GAME ============ */
+.step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: #E6F0FF;
+    color: #093A88;
+    border-radius: 50%;
+    font-weight: 700;
+    margin-right: 15px;
+    flex-shrink: 0; /* Giúp vòng tròn không bị móp khi chữ dài */
+}

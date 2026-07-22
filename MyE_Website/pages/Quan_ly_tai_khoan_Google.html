@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý tài khoản Google - MyE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #FAFAFA; }
+        .text-primary-mye { color: #093A88; }
+        .text-orange-mye { color: #FF7900; }
+        
+        .profile-hero {
+            background: linear-gradient(90deg, #04102c 0%, #0b225c 50%, #04102c 100%);
+            color: white; padding: 70px 0; position: relative; overflow: hidden;
+        }
+        .hero-tabs .btn {
+            background-color: transparent; border: 1px solid rgba(255,255,255,0.3);
+            color: white; border-radius: 8px; padding: 10px 32px; font-size: 16px; font-weight: 500;
+        }
+        .hero-tabs .btn.active {
+            border-color: #3B82F6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .progress-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: conic-gradient(#FF7A00 20%, #E0E0E0 0);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .progress-circle-inner {
+            width: 100px; height: 100px; border-radius: 50%; background-color: #FAFAFA; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; font-weight: bold; color: #FF7A00;
+        }
+
+        .mye-card {
+            background: #fff; border-radius: 16px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #EBEBEB; padding: 30px; margin-bottom: 24px;
+        }
+
+        /* Lớp CSS riêng cho viền xanh của thẻ Google đã đồng bộ */
+        .mye-card-active-blue {
+            border: 2px solid #3AA0FF !important;
+        }
+
+        .info-row { padding: 16px 0; border-bottom: 1px solid #F0F0F0; display: flex; align-items: center; }
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .info-label { width: 30%; color: #093A88; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+        .info-value { width: 70%; color: #4A4A4A; display: flex; align-items: center; justify-content: space-between; }
+        
+        .dropdown-menu { box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.12) !important; }
+        .dropdown-item { font-size: 14px; font-weight: 500; color: #282828; transition: all 0.2s ease-in-out; }
+        .dropdown-item i { color: #093A88; font-size: 18px; width: 26px; }
+        .dropdown-item:hover { background-color: #F8F9FA; color: #FF7A00; }
+        .dropdown-item:hover i { color: #FF7A00; }
+    </style>
+</head>
+<body> 
+    
+    <!-- HEADER -->
+    <header class="bg-white sticky-top shadow-sm">
+        <div class="container-fluid d-flex justify-content-between align-items-center py-3" style="width: 92%; margin: 0 auto;">
+            <a href="Trang_chu.html" class="navbar-brand" style="margin-left: 280px;">
+                <img src="../assets/images/logo.png" alt="MyE Logo" height="60">
+            </a>
+            
+            <nav class="d-none d-md-flex gap-4">
+                <a href="#" class="nav-link text-primary-mye fs-5 text-decoration-none px-3">Trang Chủ</a>
+                <a href="#" class="nav-link text-primary-mye fs-5 text-decoration-none px-3">Trò Chơi</a>
+                <a href="Nap_game.html" class="nav-link text-primary-mye fs-5 text-decoration-none px-3">Nạp Game</a>
+                <a href="#" class="nav-link text-primary-mye fs-5 text-decoration-none px-3">Tin Tức</a>
+                <a href="#" class="nav-link text-primary-mye fs-5 text-decoration-none px-3">Hỗ Trợ</a>
+            </nav>
+            
+            <div style="margin-right: 170px;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                        <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Avatar" class="rounded-circle me-2" width="45" height="45" style="object-fit: cover;">
+                        <div class="d-flex flex-column me-3">
+                            <span class="fw-bold" style="font-size: 15px; color: #FF7A00;">myepro01</span>
+                            <span class="text-muted" style="font-size: 12px; color: #093A88 !important;">MyE ID: 00123</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <img src="../assets/images/MyE_Coin/coin_M.png" alt="Coin" width="24" height="24" class="me-1">
+                            <span class="fw-bold" style="font-size: 16px; color: #093A88;">1000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="profile-hero">
+        <div class="container d-flex align-items-center justify-content-between" style="max-width: 1100px;">
+            <div class="d-flex align-items-center gap-4">
+                <div class="avatar-wrapper rounded-circle p-1 shadow" style="background-color: #2CD4D9; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center;">
+                    <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Avatar" class="rounded-circle" style="width: 166px; height: 166px; object-fit: cover;">
+                </div>
+                <div class="ms-2">
+                    <h2 class="fw-bold mb-3" style="font-size: 32px;">Nguyễn Văn A</h2>
+                    <div class="mb-2" style="font-size: 16px; opacity: 0.9;"><i class="bi bi-google me-2"></i>Tài khoản: gg.01020</div>
+                    <div class="mb-2" style="font-size: 16px; opacity: 0.9;"><i class="bi bi-lock-fill me-2"></i>MYE ID: 1123123214</div>
+                    <div style="font-size: 16px; opacity: 0.9;"><i class="bi bi-calendar3 me-2"></i>Ngày tạo tài khoản: 19/06/2026</div>
+                </div>
+            </div>
+            <div class="hero-tabs d-flex gap-3 align-items-end h-100 mt-auto pt-5">
+                <button class="btn active">Tài khoản</button>
+                <button class="btn">Bảo mật</button>
+                <button class="btn">Lịch sử giao dịch</button>
+            </div>
+        </div>
+    </section>
+
+    <main class="container my-5" style="max-width: 1100px;">
+        
+        <div class="d-flex align-items-center mb-5 gap-4">
+            <div class="progress-circle shadow-sm"><div class="progress-circle-inner">20%</div></div>
+            <div>
+                <h3 class="fw-bold mb-2" style="color: #282828;">Mức độ bảo mật</h3>
+                <p class="text-muted mb-0" style="font-size: 15px;">Tài khoản của bạn hiện tại có thể bị đe dọa bảo mật. Hãy hoàn thiện các thông tin bên dưới.</p>
+            </div>
+        </div>
+
+        <div class="mb-4 pt-3">
+            <h3 class="fw-bold mb-2 text-dark">Thông tin tài khoản</h3>
+            <p class="text-muted" style="font-size: 15px;">Bạn có thể cập nhật Hồ sơ Công khai của mình tại đây và thông tin sẽ tự động đồng bộ tất cả các tài khoản Game đã được kết nối.</p>
+        </div>
+
+        <div class="mye-card">
+            <div class="d-flex justify-content-between align-items-start mb-4 pb-3 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Avatar" width="60" height="60" class="rounded-circle" style="background-color: #2CD4D9; padding: 2px;">
+                    <div>
+                        <h5 class="fw-bold text-primary-mye mb-1">Thông tin cá nhân</h5>
+                        <span class="text-danger" style="font-size: 13px;">Chưa hoàn thiện</span>
+                    </div>
+                </div>
+                <button class="btn btn-outline-warning rounded-pill px-4 text-orange-mye fw-bold" style="border-color: #FF7A00;">Chỉnh Sửa</button>
+            </div>
+            <div class="info-list">
+                <div class="info-row"><div class="info-label"><i class="bi bi-person-fill fs-5"></i> Họ và tên</div><div class="info-value">Nguyễn Văn A</div></div>
+                <div class="info-row"><div class="info-label"><i class="bi bi-people-fill fs-5"></i> Giới tính</div><div class="info-value">Nam</div></div>
+                <div class="info-row"><div class="info-label"><i class="bi bi-calendar-event fs-5"></i> Ngày sinh</div><div class="info-value">01/01/1999</div></div>
+                <div class="info-row"><div class="info-label"><i class="bi bi-geo-alt-fill fs-5"></i> Địa chỉ</div><div class="info-value">TP.Hồ Chí Minh</div></div>
+                <div class="info-row">
+                    <div class="info-label"><i class="bi bi-envelope-fill fs-5"></i> Email</div>
+                    <div class="info-value"><span>Gameee@gmail.com <i class="bi bi-check-circle-fill text-success ms-2"></i></span></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label"><i class="bi bi-telephone-fill fs-5"></i> Số điện thoại</div>
+                    <div class="info-value"><span class="text-muted">Chưa có số điện thoại</span><button class="btn btn-outline-warning btn-sm rounded-pill px-3 text-orange-mye" style="border-color: #FF7A00;">Liên kết xác thực</button></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TRẠNG THÁI 1: GOOGLE CHƯA ĐỒNG BỘ -->
+        <!-- ========================================== -->
+        <div id="card-chua-dong-bo-gg" class="mye-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Icon" width="50" height="50" class="rounded-circle" style="background-color: #2CD4D9; padding: 2px;">
+                    <h5 class="fw-bold text-primary-mye mb-0">Đồng bộ tài khoản</h5>
+                </div>
+                <!-- Link tới form đồng bộ (Bạn có thể tạo thêm Dong_bo_tai_khoan_Google.html nếu cần) -->
+                <a href="#" class="text-decoration-none" onclick="triggerGoogleSync()">
+                    <i class="bi bi-chevron-right fs-4 text-primary-mye hover-scale" style="cursor: pointer;"></i>
+                </a>
+            </div>
+            
+            <p class="fw-bold mb-3" style="font-size: 15px;">Tài khoản hiện tại</p>
+            
+            <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="border: 1px solid #EBEBEB; background-color: #FAFAFA;">
+                <div class="d-flex align-items-center gap-3" style="width: 35%;">
+                    <!-- Vòng tròn icon Google -->
+                    <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-white" style="width: 45px; height: 45px; border: 1px solid #EAEAEA;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="22" height="22">
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Nguyễn Văn A</h6>
+                        <span class="text-muted" style="font-size: 12px;">gg.01020</span>
+                    </div>
+                </div>
+                <i class="bi bi-arrow-left-right text-muted fs-4"></i>
+                <div class="d-flex align-items-center gap-3" style="width: 35%;">
+                    <div class="rounded bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                        <i class="bi bi-person-fill text-secondary fs-4"></i>
+                    </div>
+                    <span class="fw-bold" style="font-size: 13px;">Chưa có tài khoản MYE</span>
+                </div>
+                <button class="btn rounded-pill px-4" style="background-color: #F8D7DA; color: #DC3545; font-size: 14px; font-weight: 500;" disabled>Chưa đồng bộ</button>
+            </div>
+            
+            <!-- NÚT ẨN DÙNG ĐỂ MÔ PHỎNG TEST TRẠNG THÁI (Bấm vào để xem form Đã đồng bộ) -->
+            <button class="btn btn-outline-primary mt-4 w-100" onclick="simulateGoogleSync()">[Test] Click vào đây để mô phỏng "Xác nhận đồng bộ Google"</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TRẠNG THÁI 2: GOOGLE ĐÃ ĐỒNG BỘ (Mặc định ẩn, có viền xanh) -->
+        <!-- ========================================== -->
+        <div id="card-da-dong-bo-gg" class="mye-card mye-card-active-blue" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Icon" width="50" height="50" class="rounded-circle" style="background-color: #2CD4D9; padding: 2px;">
+                    <h5 class="fw-bold text-primary-mye mb-0">Đồng bộ tài khoản</h5>
+                </div>
+                <i class="bi bi-chevron-right fs-4 text-primary-mye"></i>
+            </div>
+            
+            <p class="fw-bold text-dark mb-3" style="font-size: 15px;">Tài khoản hiện tại</p>
+            
+            <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="border: 1px solid #EAEAEA; background-color: #FAFAFA;">
+                
+                <!-- Cột Google (Bên trái) -->
+                <div class="d-flex align-items-center gap-3" style="width: 30%;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-white" style="width: 45px; height: 45px; border: 1px solid #EAEAEA;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="22" height="22">
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Nguyễn Văn A</h6>
+                        <span class="text-muted" style="font-size: 12px;">gg.01020</span>
+                    </div>
+                </div>
+                
+                <!-- Icon Mũi tên 2 chiều (Ở giữa) -->
+                <i class="bi bi-arrow-left-right text-muted fs-4"></i>
+                
+                <!-- Cột Tài khoản MYE (Bên phải) -->
+                <div class="d-flex align-items-center gap-3" style="width: 30%;">
+                    <div class="rounded bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                        <i class="bi bi-person-fill text-secondary fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Tài khoản MYE</h6>
+                        <span class="text-muted" style="font-size: 12px;">myepro456</span>
+                    </div>
+                </div>
+
+                <!-- Nút hiển thị trạng thái Đã đồng bộ -->
+                <button class="btn rounded-pill px-4" style="background-color: #D4EDDA; color: #155724; font-size: 14px; font-weight: 600; border: none; pointer-events: none;">
+                    Đã đồng bộ
+                </button>
+                
+            </div>
+        </div>
+        <!-- ========================================== -->
+
+        <div class="mye-card d-flex justify-content-between align-items-center mb-5">
+            <div class="d-flex align-items-center gap-3">
+                <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Icon" width="50" height="50" class="rounded-circle" style="background-color: #2CD4D9; padding: 2px;">
+                <h5 class="fw-bold text-primary-mye mb-0">Lịch sử hoạt động</h5>
+            </div>
+            <i class="bi bi-chevron-right fs-4 text-primary-mye"></i>
+        </div>
+
+    </main>
+
+    <footer class="py-5" style="background-color: #EBEBEB;">
+        <div class="container text-center">
+            <img src="../assets/images/logo.png" alt="MyE Logo" style="height: 70px; width: auto; display: block; margin: 0 auto 20px auto; object-fit: contain;">
+            <div class="footer-text mx-auto" style="max-width: 800px;">
+                <p class="mb-1">Email: hotro@mye.vn &nbsp;|&nbsp; Hotline: 0902 500 198</p>
+                <p class="mb-1 fw-bold">CÔNG TY CỔ PHẦN MYE</p>
+                <p class="mb-1 text-muted mt-2" style="font-size: 14px;">©Copyright © 2026 MYE. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SCRIPT XỬ LÝ RIÊNG CHO GOOGLE -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Kiểm tra biến lưu trữ riêng của Google
+            const isGoogleSynced = localStorage.getItem('daDongBoGoogle');
+            
+            if (isGoogleSynced === 'true') {
+                // Ẩn khối chưa đồng bộ, Hiện khối có viền xanh
+                document.getElementById('card-chua-dong-bo-gg').style.display = 'none';
+                document.getElementById('card-da-dong-bo-gg').style.display = 'block';
+            }
+        });
+
+        // Hàm hỗ trợ Test nhanh (mô phỏng thao tác từ form)
+        function simulateGoogleSync() {
+            localStorage.setItem('daDongBoGoogle', 'true');
+            location.reload(); // Tải lại trang để thấy kết quả
+        }
+    </script>
+</body>
+</html>
