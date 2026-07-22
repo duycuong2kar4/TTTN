@@ -42,21 +42,9 @@ document.addEventListener("DOMContentLoaded", function() {
             isLoggedIn = false;
             localStorage.setItem('mye_logged_in', 'false'); // Cập nhật lại trạng thái thành false
             updateHeaderUI(); // Cập nhật lại giao diện về trạng thái chưa đăng nhập
-        });
-    }
-});
-document.addEventListener("DOMContentLoaded", function() {
-    // 1. Kiểm tra xem trong bộ nhớ trình duyệt đã có biến 'daDongBo' chưa
-    const isSynced = localStorage.getItem('daDongBo');
-    
-    // 2. Nếu đã đồng bộ rồi (isSynced === 'true')
-    if (isSynced === 'true') {
-        // Tìm TẤT CẢ các link đang trỏ về trang Quản lý cũ
-        const links = document.querySelectorAll('a[href="Quan_ly_tai_khoan.html"]');
-        
-        // Vòng lặp đổi đường dẫn của các link đó sang trang MỚI
-        links.forEach(function(link) {
-            link.href = 'Quan_ly_tai_khoan_Da_Dong_Bo.html';
+            
+            // Tùy chọn: Xóa luôn trạng thái đồng bộ khi đăng xuất để test cho dễ
+            // localStorage.removeItem('trangThaiDongBo'); 
         });
     }
 });
