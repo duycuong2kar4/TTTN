@@ -30,6 +30,7 @@
             
             <div style="margin-right: 170px;">
                 <div class="dropdown">
+                    <!-- Khu vực bấm (Avatar + Tên) -->
                     <div class="d-flex align-items-center cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                         <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Avatar" class="rounded-circle me-2" width="45" height="45" style="object-fit: cover;">
                         <div class="d-flex flex-column me-3">
@@ -41,6 +42,21 @@
                             <span class="fw-bold" style="font-size: 16px; color: #093A88;">1000</span>
                         </div>
                     </div>
+                    
+                    <!-- MENU XỔ XUỐNG ĐÃ ĐƯỢC BỔ SUNG -->
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" style="border-radius: 12px; min-width: 220px;">
+                        <li>
+                            <a class="dropdown-item py-2 fw-medium d-flex align-items-center gap-2" href="Quan_ly_tai_khoan.html">
+                                <i class="bi bi-person-fill text-muted fs-5"></i> Quản lý tài khoản
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item py-2 fw-medium text-danger d-flex align-items-center gap-2" href="Dang_nhap.html">
+                                <i class="bi bi-box-arrow-right fs-5"></i> Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -85,22 +101,69 @@
             <p class="text-muted" style="font-size: 15px;">Bạn có thể cập nhật Hồ sơ Công khai của mình tại đây và thông tin sẽ tự động đồng bộ tất cả các tài khoản Game đã được kết nối.</p>
         </div>
 
-        <div class="mye-card">
+        <!-- KHỐI THÔNG TIN CÁ NHÂN -->
+        <div class="mye-card" id="personal-info-card">
             <div class="d-flex justify-content-between align-items-start mb-4 pb-3 border-bottom">
                 <div class="d-flex align-items-center gap-3">
                     <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Avatar" width="60" height="60" class="rounded-circle" style="background-color: #2CD4D9; padding: 2px;">
                     <div>
                         <h5 class="fw-bold text-primary-mye mb-1">Thông tin cá nhân</h5>
-                        <span class="text-danger" style="font-size: 13px;">Chưa hoàn thiện</span>
+                        <span class="text-danger" style="font-size: 13px;" id="info-status">Chưa hoàn thiện</span>
                     </div>
                 </div>
-                <button class="btn btn-outline-warning rounded-pill px-4 text-orange-mye fw-bold" style="border-color: #FF7A00;">Chỉnh Sửa</button>
+                
+                <!-- Nút Chỉnh sửa -->
+                <div id="btn-edit-container">
+                    <button class="btn btn-outline-warning rounded-pill px-4 text-orange-mye fw-bold" style="border-color: #FF7A00;" onclick="toggleEditMode(true)">Chỉnh Sửa</button>
+                </div>
+                <!-- Nút Hủy / Lưu (Mặc định ẩn) -->
+                <div id="btn-save-container" class="d-flex gap-2" style="display: none !important;">
+                    <button class="btn btn-outline-secondary rounded-pill px-4 fw-bold" onclick="toggleEditMode(false)">HỦY</button>
+                    <button class="btn text-white rounded-pill px-4 fw-bold" style="background-color: #FF7A00;" onclick="saveUserInfo()">LƯU</button>
+                </div>
             </div>
-            <div class="info-list">
-                <div class="info-row"><div class="info-label"><i class="bi bi-person-fill fs-5"></i> Họ và tên</div><div class="info-value">Nguyễn Văn A</div></div>
-                <div class="info-row"><div class="info-label"><i class="bi bi-people-fill fs-5"></i> Giới tính</div><div class="info-value">Nam</div></div>
-                <div class="info-row"><div class="info-label"><i class="bi bi-calendar-event fs-5"></i> Ngày sinh</div><div class="info-value">01/01/1999</div></div>
-                <div class="info-row"><div class="info-label"><i class="bi bi-geo-alt-fill fs-5"></i> Địa chỉ</div><div class="info-value">TP.Hồ Chí Minh</div></div>
+
+            <!-- CHẾ ĐỘ XEM (MẶC ĐỊNH) -->
+            <div id="info-view-mode" class="info-list">
+                <div class="info-row"><div class="info-label"><i class="bi bi-person-fill fs-5"></i> Họ và tên</div><div class="info-value" id="view-name">Nguyễn Văn A</div></div>
+                <div class="info-row"><div class="info-label"><i class="bi bi-people-fill fs-5"></i> Giới tính</div><div class="info-value" id="view-gender">Nam</div></div>
+                <div class="info-row"><div class="info-label"><i class="bi bi-calendar-event fs-5"></i> Ngày sinh</div><div class="info-value" id="view-dob">01/01/1999</div></div>
+                <div class="info-row"><div class="info-label"><i class="bi bi-geo-alt-fill fs-5"></i> Địa chỉ</div><div class="info-value" id="view-address">TP.Hồ Chí Minh</div></div>
+                <div class="info-row">
+                    <div class="info-label"><i class="bi bi-envelope-fill fs-5"></i> Email</div>
+                    <div class="info-value"><span>Gameee@gmail.com <i class="bi bi-check-circle-fill text-success ms-2"></i></span></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label"><i class="bi bi-telephone-fill fs-5"></i> Số điện thoại</div>
+                    <div class="info-value"><span class="text-muted">Chưa có số điện thoại</span><button class="btn btn-outline-warning btn-sm rounded-pill px-3 text-orange-mye" style="border-color: #FF7A00;">Liên kết xác thực</button></div>
+                </div>
+            </div>
+
+            <!-- CHẾ ĐỘ CHỈNH SỬA (MẶC ĐỊNH ẨN) -->
+            <div id="info-edit-mode" class="info-list" style="display: none;">
+                <div class="info-row">
+                    <div class="info-label"><i class="bi bi-person-fill fs-5"></i> Họ và tên</div>
+                    <div class="info-value"><input type="text" id="edit-name" class="form-control w-75"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label"><i class="bi bi-people-fill fs-5"></i> Giới tính</div>
+                    <div class="info-value">
+                        <select id="edit-gender" class="form-select w-75">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label"><i class="bi bi-calendar-event fs-5"></i> Ngày sinh</div>
+                    <div class="info-value"><input type="date" id="edit-dob" class="form-control w-75"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label"><i class="bi bi-geo-alt-fill fs-5"></i> Địa chỉ</div>
+                    <div class="info-value"><input type="text" id="edit-address" class="form-control w-75"></div>
+                </div>
+                <!-- Email và SĐT giữ nguyên hiển thị (Không cho sửa trực tiếp ở đây) -->
                 <div class="info-row">
                     <div class="info-label"><i class="bi bi-envelope-fill fs-5"></i> Email</div>
                     <div class="info-value"><span>Gameee@gmail.com <i class="bi bi-check-circle-fill text-success ms-2"></i></span></div>
@@ -285,15 +348,90 @@
             <button class="btn btn-sm btn-warning" onclick="resetData()">Reset Data Đồng bộ</button>
         </div>
         <!-- ========================================================================= -->
-        <!-- ========================================================================= -->
 
-        <div class="mye-card d-flex justify-content-between align-items-center mt-5 mb-5">
-            <div class="d-flex align-items-center gap-3">
-                <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Icon" width="50" height="50" class="rounded-circle" style="background-color: #2CD4D9; padding: 2px;">
-                <h5 class="fw-bold text-primary-mye mb-0">Lịch sử hoạt động</h5>
+        <!-- LỊCH SỬ HOẠT ĐỘNG (THU GỌN) -->
+        <div id="block-history-thu-gon" class="mye-card mt-5 mb-5">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Icon" width="50" height="50" class="rounded-circle" style="background-color: #2CD4D9; padding: 2px;">
+                    <h5 class="fw-bold text-primary-mye mb-0">Lịch sử hoạt động</h5>
+                </div>
+                <i class="bi bi-chevron-right fs-4 text-primary-mye hover-scale cursor-pointer" onclick="toggleHistory()"></i>
             </div>
-            <i class="bi bi-chevron-right fs-4 text-primary-mye"></i>
         </div>
+
+        <!-- LỊCH SỬ HOẠT ĐỘNG (MỞ RỘNG) -->
+        <div id="block-history-mo-rong" class="mye-card mt-5 mb-5" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="../assets/images/tai_khoan/avatarcuoi.png" alt="Icon" width="50" height="50" class="rounded-circle" style="background-color: #2CD4D9; padding: 2px;">
+                    <h5 class="fw-bold text-primary-mye mb-0">Lịch sử hoạt động</h5>
+                </div>
+                <i class="bi bi-chevron-down fs-4 text-primary-mye hover-scale cursor-pointer" onclick="toggleHistory()"></i>
+            </div>
+
+            <!-- Tiêu đề phụ -->
+            <div class="mb-4">
+                <p class="fw-bold text-dark mb-1" style="font-size: 15px;">Gỡ tất cả các phiên đăng nhập đã lưu</p>
+                <p class="text-muted" style="font-size: 13px;">Tăng cường kiểm soát và bảo vệ tài khoản của bạn</p>
+            </div>
+
+            <!-- Hộp cảnh báo và Nút gỡ -->
+            <div class="p-4 rounded-3 mb-4" style="border: 1px solid #EAEAEA;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="fw-bold text-dark mb-1" style="font-size: 14px; line-height: 1.5;">Khi thực hiện thao tác này, các thiết bị đang đăng nhập sẽ bị đăng xuất.<br>Bạn sẽ cần phải đăng nhập lại.</p>
+                    </div>
+                    <button class="btn btn-outline-warning rounded-pill px-4 text-orange-mye fw-bold" style="border-color: #FF7A00;">Gỡ tất cả</button>
+                </div>
+                <p class="text-muted mb-0" style="font-size: 13px;">Lưu ý: Để đảm bảo an toàn tài khoản, vui lòng thay đổi mật khẩu trước khi tiến hành gỡ toàn bộ các phiên đăng nhập trên mọi thiết bị.</p>
+            </div>
+
+            <!-- Bảng lịch sử -->
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle mb-0" style="font-size: 13px;">
+                    <thead style="border-bottom: 1px solid #EAEAEA;">
+                        <tr class="text-dark">
+                            <th class="fw-bold pb-3 w-25">Thời gian</th>
+                            <th class="fw-bold pb-3 w-25">Hoạt động</th>
+                            <th class="fw-bold pb-3 w-25">Thiết bị</th>
+                            <th class="fw-bold pb-3 w-25">IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #F5F5F5;">
+                            <td class="py-3 text-muted"><i class="bi bi-clock me-2"></i>02/06/2026 08:53:18</td>
+                            <td class="py-3 text-dark fw-medium">Kích hoạt tài khoản</td>
+                            <td class="py-3 text-muted">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" alt="Chrome" width="20" class="me-2">
+                                    <div style="line-height: 1.2;">
+                                        <span class="d-block text-dark">Chrome Mobile</span>
+                                        <small style="font-size: 11px;">Mobile</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3 text-muted">210.86.237.19</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 text-muted"><i class="bi bi-clock me-2"></i>02/06/2026 08:52:18</td>
+                            <td class="py-3 text-dark fw-medium">Cập nhật thông tin tài khoản</td>
+                            <td class="py-3 text-muted">
+                                <div class="d-flex align-items-center">
+                                   <img src="../assets/images/Safari-Logo.png" alt="Safari" width="20" class="me-2">
+                                    <div style="line-height: 1.2;">
+                                        <span class="d-block text-dark">Safari</span>
+                                        <small style="font-size: 11px;">Macbook</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3 text-muted">210.86.237.19</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </main>
 
    <footer class="py-5" style="background-color: #EBEBEB;">

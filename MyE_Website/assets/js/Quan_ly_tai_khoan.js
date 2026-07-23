@@ -113,3 +113,108 @@ function resetData() {
     localStorage.removeItem('trangThaiDongBo');
     renderGiaoDien();
 }
+// ================= HỆ THỐNG CHỈNH SỬA THÔNG TIN CÁ NHÂN =================
+
+// Khởi tạo và tải dữ liệu người dùng ngay khi vừa load xong trang
+document.addEventListener("DOMContentLoaded", function() {
+    loadUserInfo();
+});
+
+function loadUserInfo() {
+    // 1. Dữ liệu mặc định ban đầu nếu người dùng chưa từng sửa
+    const defaultInfo = {
+        name: "Nguyễn Văn A",
+        gender: "Nam",
+        dob: "1999-01-01", // Chuẩn YYYY-MM-DD để hiển thị lên thẻ input type="date"
+        address: "TP.Hồ Chí Minh"
+    };
+
+    // 2. Lấy dữ liệu từ bộ nhớ trình duyệt
+    const savedInfo = JSON.parse(localStorage.getItem('mye_user_info')) || defaultInfo;
+
+    // 3. Đổ dữ liệu ra giao diện (Chế độ Xem)
+    document.getElementById('view-name').innerText = savedInfo.name;
+    document.getElementById('view-gender').innerText = savedInfo.gender;
+    document.getElementById('view-address').innerText = savedInfo.address;
+    
+    // Xử lý đảo ngược hiển thị ngày sinh (Từ YYYY-MM-DD thành DD/MM/YYYY)
+    if(savedInfo.dob) {
+        const [year, month, day] = savedInfo.dob.split('-');
+        document.getElementById('view-dob').innerText = `${day}/${month}/${year}`;
+    }
+    
+    // 4. (Tùy chọn) Cập nhật luôn tên người dùng trên thanh Banner xanh dương
+    const heroNameElement = document.querySelector('.profile-hero h2');
+    if (heroNameElement) heroNameElement.innerText = savedInfo.name;
+}
+
+// Hàm bật/tắt form chỉnh sửa
+function toggleEditMode(isEdit) {
+    const viewMode = document.getElementById('info-view-mode');
+    const editMode = document.getElementById('info-edit-mode');
+    const btnEdit = document.getElementById('btn-edit-container');
+    const btnSave = document.getElementById('btn-save-container');
+
+    if (isEdit) {
+        // Mở Form: Ẩn chế độ Xem, Bật chế độ Sửa và Đổi Nút
+        viewMode.style.display = 'none';
+        editMode.style.display = 'block';
+        btnEdit.style.setProperty('display', 'none', 'important');
+        btnSave.style.setProperty('display', 'flex', 'important');
+
+        // Lấy dữ liệu hiện tại gắn vào các thanh Input để người dùng sửa tiếp
+        const currentInfo = JSON.parse(localStorage.getItem('mye_user_info')) || {
+            name: "Nguyễn Văn A", gender: "Nam", dob: "1999-01-01", address: "TP.Hồ Chí Minh"
+        };
+        
+        document.getElementById('edit-name').value = currentInfo.name;
+        document.getElementById('edit-gender').value = currentInfo.gender;
+        document.getElementById('edit-dob').value = currentInfo.dob;
+        document.getElementById('edit-address').value = currentInfo.address;
+    } else {
+        // Bấm Nút Hủy: Trả lại như cũ
+        viewMode.style.display = 'block';
+        editMode.style.display = 'none';
+        btnEdit.style.setProperty('display', 'block', 'important');
+        btnSave.style.setProperty('display', 'none', 'important');
+    }
+}
+
+// Hàm lưu dữ liệu
+function saveUserInfo() {
+    // 1. Gom dữ liệu mới từ các ô input
+    const newInfo = {
+        name: document.getElementById('edit-name').value,
+        gender: document.getElementById('edit-gender').value,
+        dob: document.getElementById('edit-dob').value,
+        address: document.getElementById('edit-address').value
+    };
+
+    // 2. Lưu đè vào bộ nhớ trình duyệt
+    localStorage.setItem('mye_user_info', JSON.stringify(newInfo));
+
+    // 3. Đổi chữ "Chưa hoàn thiện" (Màu Đỏ) thành "Đã cập nhật" (Màu Xanh)
+    const statusSpan = document.getElementById('info-status');
+    if (statusSpan) {
+        statusSpan.innerText = 'Đã cập nhật';
+        statusSpan.classList.remove('text-danger');
+        statusSpan.classList.add('text-success');
+    }
+
+    // 4. Load lại dữ liệu ra view và đóng chế độ sửa
+    loadUserInfo();
+    toggleEditMode(false);
+}
+// Hàm Bật/Tắt khối Lịch sử hoạt động
+function toggleHistory() {
+    const thuGon = document.getElementById('block-history-thu-gon');
+    const moRong = document.getElementById('block-history-mo-rong');
+    
+    if (thuGon.style.display === 'none') {
+        thuGon.style.display = 'block';
+        moRong.style.display = 'none';
+    } else {
+        thuGon.style.display = 'none';
+        moRong.style.display = 'block';
+    }
+}
