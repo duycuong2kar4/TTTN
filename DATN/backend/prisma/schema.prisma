@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" 
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  EDITOR
+  ADMIN
+  SUPERADMIN
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  phone     String?   
+  
+  avatar    String?   
+  gender    String?   
+  dob       DateTime? 
+  address   String?   
+  
+  addresses Address[]
+  wishlists Wishlist[]
+  news      News[]
+  reviews   Review[]  
+  orders    Order[]   
+  cart      Cart?     // Liên kết 1-1 với Giỏ hàng
+  
+  role      Role?     @default(USER) 
+  createdAt DateTime? @default(now())
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  products    Product[]
+}
+
+model Brand {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model Product {
+  id           Int         @id @default(autoincrement())
+  name         String
+  price        Int
+  salePrice    Int?
+  image        String?
+  quantity     Int         @default(0)
+  description  String?     @db.Text
+  
+  categoryId   Int
+  category     Category    @relation(fields: [categoryId], references: [id])
+  brandId      Int
+  brand        Brand       @relation(fields: [brandId], references: [id])
+  
+  isNew        Boolean     @default(true)
+  isSale       Boolean     @default(false)
+  isBest       Boolean     @default(false)
+  isDeleted    Boolean     @default(false)
+  
+  gallery      Json?      
+  colors       Json?      
+  specs        Json?      
+  
+  orderItems   OrderItem[]
+  wishlists    Wishlist[] 
+  reviews      Review[]    
+  cartItems    CartItem[]  
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @default(now()) @updatedAt
+}
+
+// =====================================
+// BẢNG GIỎ HÀNG
+// =====================================
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  cartId    Int     
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  
+  productId Int     
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  quantity  Int     @default(1)
+}
+
+// =====================================
+// CÁC BẢNG QUẢN LÝ ĐƠN & TÍNH NĂNG KHÁC
+// =====================================
+model Order {
+  id              Int         @id @default(autoincrement())
+  orderCode       String      @unique // Mã đơn hàng ngẫu nhiên (VD: ORD12345)
+  userId          Int?        // Cho phép khách vãng lai mua hàng 
+  user            User?       @relation(fields: [userId], references: [id])
+  shippingName    String      // Tên người nhận
+  shippingPhone   String      // SĐT người nhận
+  shippingAddress String      // Địa chỉ giao hàng
+  paymentMethod   String      @default("COD") 
+  totalAmount     Int         // Tổng tiền
+  status          String      @default("PENDING") // PENDING, SHIPPING, PAID, CANCELLED
+  items           OrderItem[]
+ createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @default(now()) @updatedAt
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+  price     Int     // Giá tại thời điểm mua
+}
+
+model Address {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  fullName    String   
+  phone       String   
+  fullAddress String   
+  isDefault   Boolean  @default(false)
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId]) 
+}
+
+model Banner {
+  id        Int      @id @default(autoincrement())
+  title     String?  
+  imageUrl  String   
+  link      String?  
+  isActive  Boolean  @default(true) 
+
+  createdAt DateTime @default(now())
+}
+
+model News {
+  id          Int      @id @default(autoincrement())
+  title       String   
+  thumbnail   String?  
+  content     String   @db.Text 
+  
+  authorId    Int?     
+  author      User?    @relation(fields: [authorId], references: [id])
+  
+  views       Int      @default(0) 
+  isActive    Boolean  @default(true) 
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  rating    Int      @default(5)
+  comment   String   @db.Text
+  createdAt DateTime @default(now())
+}
