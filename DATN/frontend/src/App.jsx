@@ -13,10 +13,13 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 
 // ==========================================
-// 1. TRANG CHỦ
+// 1. TRANG CHỦ (BENTO GRID + CUỘN VÔ TẬN + FLAT CARD + WISHLIST HOẠT ĐỘNG)
 // ==========================================
 function Home() {
   const { addToCart } = useContext(CartContext);
+  const { user } = useContext(AuthContext); // Lấy thông tin User
+  const navigate = useNavigate();           // Dùng để chuyển hướng nếu chưa đăng nhập
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -27,16 +30,22 @@ function Home() {
   const [selectedBrand, setSelectedBrand] = useState('');
   const [priceRange, setPriceRange] = useState('');
   const [sortOption, setSortOption] = useState('');
-const uiSettings = JSON.parse(localStorage.getItem('app_ui_settings')) || { showSale: true, showCategories: true, showNews: true };
+  const uiSettings = JSON.parse(localStorage.getItem('app_ui_settings')) || { showSale: true, showCategories: true, showNews: true, showNew: true, showBest: true };
   const [currentBanner, setCurrentBanner] = useState(0);
+
+  // Tham chiếu cuộn Ưu Đãi
+  const discountRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // MỚI: State lưu trữ danh sách ID các sản phẩm đã thả tim
+  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
       const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark') {
-          document.documentElement.classList.add('dark');
-      }
+      if (savedTheme === 'dark') { document.documentElement.classList.add('dark'); }
   }, []);
 
+  // Cuộn Banner
   useEffect(() => {
     if (activeBanners.length <= 1) return;
     const interval = setInterval(() => {
@@ -45,6 +54,7 @@ const uiSettings = JSON.parse(localStorage.getItem('app_ui_settings')) || { show
     return () => clearInterval(interval);
   }, [activeBanners.length]);
 
+  // Lấy dữ liệu sản phẩm
   useEffect(() => {
     axios.get('http://localhost:5000/api/products').then(res => setProducts(res.data));
     axios.get('http://localhost:5000/api/categories').then(res => setCategories(res.data));
@@ -52,6 +62,45 @@ const uiSettings = JSON.parse(localStorage.getItem('app_ui_settings')) || { show
     axios.get('http://localhost:5000/api/banners/active').then(res => setActiveBanners(res.data)).catch(err => console.log(err));
     axios.get('http://localhost:5000/api/news').then(res => setNewsList(res.data.slice(0, 4))).catch(err => console.log(err));
   }, []);
+
+  // MỚI: Tải danh sách yêu thích khi người dùng đăng nhập
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && user) {
+      axios.get('http://localhost:5000/api/wishlist', { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => {
+          // Chỉ lấy mảng các ID sản phẩm để dễ bề so sánh
+          setFavorites(res.data.map(item => item.productId));
+      })
+      .catch(err => console.log(err));
+    }
+  }, [user]);
+
+  // MỚI: Hàm xử lý sự kiện bấm nút Thả tim
+  const toggleFavorite = async (e, productId) => {
+      e.preventDefault(); // Ngăn chặn việc lỡ click vào thẻ Link bọc bên ngoài
+      const token = localStorage.getItem('token');
+      if (!token) {
+          toast.warning("Vui lòng đăng nhập để lưu sản phẩm yêu thích!");
+          navigate('/login');
+          return;
+      }
+      try {
+          const res = await axios.post('http://localhost:5000/api/wishlist/toggle', { productId }, {
+              headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          if (res.data.isLiked) {
+              setFavorites(prev => [...prev, productId]); // Thêm ID vào mảng hiện tại
+              toast.success("Đã thêm vào danh sách yêu thích! ❤️");
+          } else {
+              setFavorites(prev => prev.filter(id => id !== productId)); // Xóa ID khỏi mảng
+              toast.info("Đã bỏ khỏi danh sách yêu thích.");
+          }
+      } catch (error) {
+          toast.error("Có lỗi xảy ra khi cập nhật danh sách!");
+      }
+  };
 
   let processedProducts = products.filter(item => {
     const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -71,35 +120,64 @@ const uiSettings = JSON.parse(localStorage.getItem('app_ui_settings')) || { show
 
   const clearFilters = () => { setSearchTerm(''); setSelectedCategory(''); setSelectedBrand(''); setPriceRange(''); setSortOption(''); }
 
-  // LỌC CÁC SẢN PHẨM CÓ TÍCH Ô "ĐANG GIẢM GIÁ" TỪ ADMIN
   const discountedProducts = products.filter(item => item.isSale);
-const newProducts = products.filter(item => item.isNew); // Lấy hàng mới
+  const newProducts = products.filter(item => item.isNew);
   const bestProducts = products.filter(item => item.isBest);
+
+  // Tự động nhân đôi danh sách
+  const getInfiniteList = (list) => {
+    if (list.length === 0) return [];
+    if (list.length < 5) return [...list, ...list, ...list, ...list];
+    return [...list, ...list]; 
+  };
+  const infiniteDiscounted = getInfiniteList(discountedProducts);
+
+  // Động cơ trượt mượt 60 FPS
+  useEffect(() => {
+    let animationId;
+    const scrollSpeed = 1.5; 
+
+    const scroll = () => {
+      if (!isHovered && discountRef.current) {
+          const container = discountRef.current;
+          const count = discountedProducts.length;
+          if (count > 0 && container.children.length >= count * 2) {
+            const resetPoint = container.children[count].offsetLeft - container.children[0].offsetLeft;
+            container.scrollLeft += scrollSpeed;
+            if (container.scrollLeft >= resetPoint) {
+              container.scrollLeft -= resetPoint;
+            }
+          }
+      }
+      animationId = requestAnimationFrame(scroll);
+    };
+
+    animationId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animationId);
+  }, [isHovered, discountedProducts.length]);
+
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
+      {/* Ẩn thanh Scrollbar mặc định */}
+      <style>
+        {`
+          .hide-scrollbar::-webkit-scrollbar { display: none; }
+          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        `}
+      </style>
+
       {/* 1. KHỐI BANNER */}
       {activeBanners.length > 0 && (
-        <div className="mb-12 w-full overflow-hidden rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative bg-slate-900 group">
-          <div 
-            className="flex w-full transition-transform duration-700 ease-in-out"
-            style={{ transform: `translateX(-${currentBanner * 100}%)` }}
-          >
+        <div className="mb-14 w-full overflow-hidden rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative bg-slate-900 group">
+          <div className="flex w-full transition-transform duration-700 ease-in-out" style={{ transform: `translateX(-${currentBanner * 100}%)` }}>
             {activeBanners.map((banner, index) => (
               <div key={banner.id} className="flex-none w-full relative" style={{ flex: '0 0 100%' }}>
                 {banner.link ? (
                   <Link to={banner.link} className="block w-full h-full">
-                    <img 
-                      src={`http://localhost:5000${banner.imageUrl}`} 
-                      alt={banner.title || `Banner ${index}`} 
-                      className="block w-full h-[250px] md:h-[400px] object-cover hover:opacity-95 transition-opacity" 
-                    />
+                    <img src={`http://localhost:5000${banner.imageUrl}`} alt={banner.title || `Banner ${index}`} className="block w-full h-[250px] md:h-[400px] object-cover hover:opacity-95 transition-opacity" />
                   </Link>
                 ) : (
-                  <img 
-                    src={`http://localhost:5000${banner.imageUrl}`} 
-                    alt={banner.title || `Banner ${index}`} 
-                    className="block w-full h-[250px] md:h-[400px] object-cover" 
-                  />
+                  <img src={`http://localhost:5000${banner.imageUrl}`} alt={banner.title || `Banner ${index}`} className="block w-full h-[250px] md:h-[400px] object-cover" />
                 )}
               </div>
             ))}
@@ -108,66 +186,73 @@ const newProducts = products.filter(item => item.isNew); // Lấy hàng mới
           {activeBanners.length > 1 && (
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
                   {activeBanners.map((_, idx) => (
-                      <button 
-                          key={idx} 
-                          onClick={() => setCurrentBanner(idx)}
-                          className={`h-2.5 rounded-full transition-all duration-300 shadow-sm ${currentBanner === idx ? 'bg-blue-600 w-8' : 'bg-white/70 w-2.5 hover:bg-white'}`}
-                          aria-label={`Chuyển đến banner ${idx + 1}`}
-                      />
+                      <button key={idx} onClick={() => setCurrentBanner(idx)} className={`h-2.5 rounded-full transition-all duration-300 shadow-sm ${currentBanner === idx ? 'bg-blue-600 w-8' : 'bg-white/70 w-2.5 hover:bg-white'}`} />
                   ))}
               </div>
           )}
         </div>
       )}
 
-      {/* 2. KHỐI SẢN PHẨM GIẢM GIÁ (Đã liên kết với cờ isSale) */}
-      {discountedProducts.length > 0 && (
-        <div className="mb-16">
-          <div className="flex items-center gap-4 mb-6">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-blue-700 uppercase tracking-wider flex items-center gap-2">
-              ⚡ Ưu Đãi Tháng Này
+      {/* 2. KHỐI ƯU ĐÃI (NỀN ĐEN + CUỘN VÔ TẬN) */}
+      {uiSettings.showSale && discountedProducts.length > 0 && (
+        <div className="mb-20 bg-slate-900 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-red-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+
+          <div className="flex items-center gap-4 mb-8 relative z-10">
+            <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight flex items-center gap-3">
+              <span className="text-red-500 animate-pulse">⚡</span> Giờ Vàng Ưu Đãi
             </h2>
-            <div className="h-px bg-blue-200 flex-1"></div>
+            <div className="h-px bg-slate-700 flex-1"></div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {discountedProducts.slice(0, 8).map(item => (
-              <div key={`discount-${item.id}`} className="bg-white rounded-2xl flex flex-col border border-blue-100 overflow-hidden group hover:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.15)] transition-all duration-300 hover:-translate-y-1 relative">
+          <div ref={discountRef} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} className="flex overflow-x-auto gap-6 pb-4 hide-scrollbar cursor-pointer relative z-10">
+            {infiniteDiscounted.map((item, idx) => (
+              <div key={`discount-${item.id}-${idx}`} className="bg-white rounded-2xl flex flex-col overflow-hidden group hover:shadow-[0_0_25px_rgba(239,68,68,0.4)] transition-all duration-300 hover:-translate-y-1.5 relative flex-none w-[85vw] sm:w-[calc(50%-12px)] md:w-[calc(25%-18px)]">
                 
-              {/* TEM NHÃN CHO HÀNG GIẢM GIÁ (ĐÃ LÀM MỚI UI) */}
-                <div className="absolute top-3 left-3 flex flex-col gap-2 z-20">
-                    {item.isNew && (
-                        <span className="flex items-center gap-1 bg-gradient-to-r from-blue-500 to-cyan-400 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-[0_4px_10px_rgba(56,189,248,0.4)] uppercase tracking-widest border border-white/50 backdrop-blur-sm">
-                            <span className="text-xs">✨</span> MỚI
-                        </span>
-                    )}
-                    {item.isBest && (
-                        <span className="flex items-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-[0_4px_10px_rgba(245,158,11,0.4)] uppercase tracking-widest border border-white/50 backdrop-blur-sm">
-                            <span className="text-xs">🔥</span> HOT
-                        </span>
-                    )}
-                </div>
-                <div className="absolute top-3 right-3 flex items-center justify-center bg-gradient-to-tr from-red-600 to-rose-500 text-white text-xs font-black px-3.5 py-1.5 rounded-full shadow-[0_4px_12px_rgba(225,29,72,0.4)] z-20 uppercase tracking-widest border-2 border-white">
-                  Giảm Giá
+                {/* NÚT TIM CÓ HÀM BẤM */}
+                <button 
+                  onClick={(e) => toggleFavorite(e, item.id)} 
+                  className={`absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center backdrop-blur-md rounded-full transition-colors shadow-sm ${favorites.includes(item.id) ? 'bg-red-50 text-red-500' : 'bg-white/80 text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
+                >
+                    <svg className="w-4 h-4" fill={favorites.includes(item.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        {favorites.includes(item.id) ? (
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        ) : (
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        )}
+                    </svg>
+                </button>
+
+                <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20 items-start">
+                    {Number(item.sale_price) > 0 ? (
+                        <span className="bg-red-50 border border-red-200 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Giảm {Math.round(((Number(item.price) - Number(item.sale_price)) / Number(item.price)) * 100)}%</span>
+                    ) : item.isSale ? (
+                        <span className="bg-red-50 border border-red-200 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Giảm Giá</span>
+                    ) : null}
+                    {item.isNew && <span className="bg-blue-50 border border-blue-200 text-blue-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Mới</span>}
+                    {item.isBest && <span className="bg-orange-50 border border-orange-200 text-orange-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Hot</span>}
                 </div>
 
-                <Link to={`/product/${item.id}`} className="block relative w-full h-64 p-6 bg-white flex items-center justify-center overflow-hidden">
-                  {item.image ? 
-                    <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm" /> 
-                  : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
+                <Link to={`/product/${item.id}`} className="block relative w-full h-56 p-5 bg-white flex items-center justify-center overflow-hidden border-b border-slate-50">
+                  {item.image ? <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
                 </Link>
-                <div className="p-5 flex flex-col flex-1 bg-blue-50/30 border-t border-blue-50">
-                  <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">{item.category?.name || 'Đang Sale'}</span>
+                
+                <div className="p-5 flex flex-col flex-1 bg-white">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{item.category?.name || 'Danh mục'}</span>
                   <Link to={`/product/${item.id}`}>
-                    <h3 className="text-base font-bold text-slate-800 mb-4 hover:text-blue-600 transition-colors line-clamp-2 min-h-[3rem] leading-snug">{item.name}</h3>
+                    <h3 className="text-sm md:text-base font-bold text-slate-800 mb-2 hover:text-blue-600 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">{item.name}</h3>
                   </Link>
-                  <div className="mt-auto">
-                      <div className="flex items-end gap-2 mb-4">
-                        <span className="text-xl font-black text-blue-600 block">{Number(item.price).toLocaleString('vi-VN')} đ</span>
-                        <span className="text-sm font-semibold text-slate-400 line-through mb-0.5">{Number(item.price * 1.15).toLocaleString('vi-VN')} đ</span>
+                  <div className="mt-auto flex items-end justify-between">
+                      <div className="flex flex-col">
+                          {item.sale_price > 0 ? (
+                              <><span className="text-lg font-black text-red-600 leading-none block mb-1.5">{Number(item.sale_price).toLocaleString('vi-VN')} đ</span><span className="text-xs font-semibold text-slate-400 line-through">{Number(item.price).toLocaleString('vi-VN')} đ</span></>
+                          ) : (
+                              <span className="text-lg font-black text-slate-900 leading-none block">{Number(item.price).toLocaleString('vi-VN')} đ</span>
+                          )}
                       </div>
-                      <button onClick={() => addToCart(item)} className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold hover:bg-blue-600 transition-all duration-300 active:scale-95 shadow-md flex items-center justify-center gap-2">
-                        Mua Ngay
+                      <button onClick={(e) => { e.preventDefault(); addToCart(item); }} className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-95 group-hover:bg-slate-900 group-hover:text-white flex-shrink-0">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                       </button>
                   </div>
                 </div>
@@ -176,221 +261,328 @@ const newProducts = products.filter(item => item.isNew); // Lấy hàng mới
           </div>
         </div>
       )}
-{/* ======================================= */}
-      {/* KHỐI SẢN PHẨM MỚI RA MẮT */}
-      {/* ======================================= */}
-      {newProducts.length > 0 && (
-        <div className="mb-16">
-          <div className="flex items-center gap-4 mb-6">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-cyan-600 uppercase tracking-wider flex items-center gap-2">
-              ✨ Sản Phẩm Mới Lên Kệ
+
+      {/* 3. KHỐI HÀNG MỚI LÊN KỆ (BENTO GRID - 1 TO, 4 NHỎ) */}
+      {uiSettings.showNew && newProducts.length > 0 && (
+        <div className="mb-20">
+          <div className="flex items-center gap-4 mb-8">
+            <h2 className="text-2xl md:text-3xl font-black text-slate-800 uppercase tracking-tight flex items-center gap-3">
+              <span className="text-blue-500">✨</span> Mới Lên Kệ
             </h2>
-            <div className="h-px bg-cyan-200 flex-1"></div>
+            <div className="h-[2px] bg-slate-200 flex-1"></div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {newProducts.slice(0, 4).map(item => (
-              <div key={`new-${item.id}`} className="bg-white rounded-2xl flex flex-col border border-slate-100 overflow-hidden group hover:shadow-[0_20px_40px_-15px_rgba(6,182,212,0.15)] hover:border-cyan-300 transition-all duration-300 hover:-translate-y-1 relative">
-                
-                <div className="absolute top-3 left-3 flex flex-col gap-2 z-20">
-                    <span className="flex items-center gap-1 bg-gradient-to-r from-blue-500 to-cyan-400 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-[0_4px_10px_rgba(56,189,248,0.4)] uppercase tracking-widest border border-white/50 backdrop-blur-sm">
-                        <span className="text-xs">✨</span> MỚI
-                    </span>
-                    {item.isBest && <span className="flex items-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-sm uppercase tracking-widest border border-white/50 backdrop-blur-sm"><span className="text-xs">🔥</span> HOT</span>}
-                </div>
-                {item.isSale && <div className="absolute top-3 right-3 flex items-center justify-center bg-gradient-to-tr from-red-600 to-rose-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm z-20 uppercase tracking-widest border-2 border-white">Giảm Giá</div>}
-
-                <Link to={`/product/${item.id}`} className="block relative w-full h-64 p-6 bg-white flex items-center justify-center overflow-hidden">
-                  {item.image ? <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
-                </Link>
-                <div className="p-5 flex flex-col flex-1 bg-cyan-50/30 border-t border-cyan-50">
-                  <span className="text-[10px] font-black text-cyan-600 uppercase tracking-widest mb-2 block">{item.category?.name || 'Hàng Mới'}</span>
-                  <Link to={`/product/${item.id}`}><h3 className="text-base font-bold text-slate-800 mb-4 hover:text-cyan-600 transition-colors line-clamp-2 min-h-[3rem] leading-snug">{item.name}</h3></Link>
-                  <div className="mt-auto">
-                      <div className="flex items-end gap-2 mb-4">
-                          {item.sale_price > 0 ? (
-                              <><span className="text-xl font-black text-red-600 block">{Number(item.sale_price).toLocaleString('vi-VN')} đ</span><span className="text-sm font-semibold text-slate-400 line-through mb-0.5">{Number(item.price).toLocaleString('vi-VN')} đ</span></>
-                          ) : (
-                              <span className="text-xl font-black text-cyan-700 block">{Number(item.price).toLocaleString('vi-VN')} đ</span>
-                          )}
-                      </div>
-                      <button onClick={() => addToCart(item)} className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold hover:bg-cyan-600 transition-all duration-300 active:scale-95 shadow-md">Mua Ngay</button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ======================================= */}
-      {/* KHỐI SẢN PHẨM BÁN CHẠY NHẤT */}
-      {/* ======================================= */}
-      {bestProducts.length > 0 && (
-        <div className="mb-16">
-          <div className="flex items-center gap-4 mb-6">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-orange-500 uppercase tracking-wider flex items-center gap-2">
-              🏆 Bán Chạy Nhất
-            </h2>
-            <div className="h-px bg-orange-200 flex-1"></div>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {bestProducts.slice(0, 4).map(item => (
-              <div key={`best-${item.id}`} className="bg-white rounded-2xl flex flex-col border border-slate-100 overflow-hidden group hover:shadow-[0_20px_40px_-15px_rgba(249,115,22,0.15)] hover:border-orange-300 transition-all duration-300 hover:-translate-y-1 relative">
-                
-                <div className="absolute top-3 left-3 flex flex-col gap-2 z-20">
-                    <span className="flex items-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-[0_4px_10px_rgba(245,158,11,0.4)] uppercase tracking-widest border border-white/50 backdrop-blur-sm">
-                        <span className="text-xs">🔥</span> HOT
-                    </span>
-                    {item.isNew && <span className="flex items-center gap-1 bg-gradient-to-r from-blue-500 to-cyan-400 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-sm uppercase tracking-widest border border-white/50 backdrop-blur-sm"><span className="text-xs">✨</span> MỚI</span>}
-                </div>
-                {item.isSale && <div className="absolute top-3 right-3 flex items-center justify-center bg-gradient-to-tr from-red-600 to-rose-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm z-20 uppercase tracking-widest border-2 border-white">Giảm Giá</div>}
-
-                <Link to={`/product/${item.id}`} className="block relative w-full h-64 p-6 bg-white flex items-center justify-center overflow-hidden">
-                  {item.image ? <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
-                </Link>
-                <div className="p-5 flex flex-col flex-1 bg-orange-50/30 border-t border-orange-50">
-                  <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 block">{item.category?.name || 'Bán Chạy'}</span>
-                  <Link to={`/product/${item.id}`}><h3 className="text-base font-bold text-slate-800 mb-4 hover:text-orange-600 transition-colors line-clamp-2 min-h-[3rem] leading-snug">{item.name}</h3></Link>
-                  <div className="mt-auto">
-                      <div className="flex items-end gap-2 mb-4">
-                          {item.sale_price > 0 ? (
-                              <><span className="text-xl font-black text-red-600 block">{Number(item.sale_price).toLocaleString('vi-VN')} đ</span><span className="text-sm font-semibold text-slate-400 line-through mb-0.5">{Number(item.price).toLocaleString('vi-VN')} đ</span></>
-                          ) : (
-                              <span className="text-xl font-black text-orange-700 block">{Number(item.price).toLocaleString('vi-VN')} đ</span>
-                          )}
-                      </div>
-                      <button onClick={() => addToCart(item)} className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold hover:bg-orange-600 transition-all duration-300 active:scale-95 shadow-md">Mua Ngay</button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {/* 3. BỘ LỌC VÀ KHU VỰC HIỂN THỊ THEO DANH MỤC */}
-      <div className="flex items-center justify-center gap-4 mb-8 mt-12">
-         <div className="h-px bg-slate-200 flex-1 max-w-[100px]"></div>
-         <h2 className="text-3xl font-extrabold text-slate-800 dark:text-white text-center uppercase tracking-wider">Danh Mục Sản Phẩm</h2>
-         <div className="h-px bg-slate-200 flex-1 max-w-[100px]"></div>
-      </div>
-      
-      {/* THANH TÌM KIẾM & BỘ LỌC */}
-      <div className="max-w-6xl mx-auto mb-14 bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/50">
-        <div className="flex flex-col lg:flex-row gap-4">
-          
-          <div className="relative flex-1">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
-            <input type="text" placeholder="Tìm kiếm máy ảnh, ống kính..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all bg-slate-50 focus:bg-white font-medium text-slate-700" />
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="px-3 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none bg-slate-50 focus:bg-white font-medium text-slate-600 transition-all cursor-pointer text-sm">
-              <option value="">📦 Mọi danh mục</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-
-            <select value={selectedBrand} onChange={(e) => setSelectedBrand(e.target.value)} className="px-3 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none bg-slate-50 focus:bg-white font-medium text-slate-600 transition-all cursor-pointer text-sm">
-              <option value="">🏷️ Mọi hãng</option>
-              {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-
-            <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)} className="px-3 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none bg-slate-50 focus:bg-white font-medium text-slate-600 transition-all cursor-pointer text-sm">
-              <option value="">💰 Mọi mức giá</option>
-              <option value="under5">Dưới 5 triệu</option>
-              <option value="5to15">Từ 5 - 15 triệu</option>
-              <option value="over15">Trên 15 triệu</option>
-            </select>
-
-            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="px-3 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none bg-slate-50 focus:bg-white font-medium text-slate-600 transition-all cursor-pointer text-sm">
-              <option value="">↕️ Sắp xếp</option>
-              <option value="priceAsc">Giá: Thấp đến Cao</option>
-              <option value="priceDesc">Giá: Cao đến Thấp</option>
-              <option value="nameAsc">Tên: A - Z</option>
-              <option value="nameDesc">Tên: Z - A</option>
-            </select>
-          </div>
-          
-        </div>
-      </div>
-
-      {/* HIỂN THỊ SẢN PHẨM THEO TỪNG DANH MỤC */}
-      {processedProducts.length === 0 ? (
-        <div className="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200 mb-12">
-            <span className="text-5xl mb-4 block">🧐</span>
-            <p className="text-slate-500 text-lg font-medium">Không tìm thấy sản phẩm nào phù hợp với bộ lọc.</p>
-            <button onClick={clearFilters} className="mt-6 text-white font-bold bg-slate-900 px-8 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-md">Xóa bộ lọc</button>
-        </div>
-      ) : (
-        categories.map(category => {
-            const categoryProducts = processedProducts.filter(item => 
-                item.categoryId === category.id || item.categoryId?.toString() === category.id.toString()
-            );
-
-            if (categoryProducts.length === 0) return null;
-
-            return (
-                <div key={`cat-${category.id}`} className="mb-16">
-                    <div className="flex items-center gap-4 mb-6">
-                        <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white uppercase tracking-wider">
-                            {category.name}
-                        </h2>
-                        <div className="h-0.5 bg-blue-600 w-16"></div>
-                        <div className="h-px bg-slate-200 flex-1"></div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+             
+             {/* THẺ HERO */}
+             {newProducts[0] && (
+                 <div className="lg:col-span-5 bg-white rounded-3xl border-2 border-slate-100 overflow-hidden group hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] hover:border-blue-200 transition-all duration-500 flex flex-col relative h-full">
+                    <div className="absolute top-5 left-5 flex flex-col gap-2 z-20">
+                      <span className="bg-gradient-to-r from-blue-600 to-blue-500 text-white text-xs font-black px-4 py-2 rounded-full shadow-md uppercase tracking-widest flex items-center gap-2">
+                         <span className="text-base">✨</span> Siêu Phẩm Mới
+                      </span>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {categoryProducts.slice(0, 8).map(item => (
-                            <div key={item.id} className="bg-white rounded-2xl flex flex-col border border-slate-100 overflow-hidden group hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 relative">
-                                
-                               {/* TEM NHÃN CHO HÀNG BÌNH THƯỜNG (ĐÃ LÀM MỚI UI) */}
-                                <div className="absolute top-3 left-3 flex flex-col gap-2 z-20">
-                                    {item.isNew && (
-                                        <span className="flex items-center gap-1 bg-gradient-to-r from-blue-500 to-cyan-400 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-[0_4px_10px_rgba(56,189,248,0.4)] uppercase tracking-widest border border-white/50 backdrop-blur-sm">
-                                            <span className="text-xs">✨</span> MỚI
-                                        </span>
-                                    )}
-                                    {item.isBest && (
-                                        <span className="flex items-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-[0_4px_10px_rgba(245,158,11,0.4)] uppercase tracking-widest border border-white/50 backdrop-blur-sm">
-                                            <span className="text-xs">🔥</span> HOT
-                                        </span>
-                                    )}
-                                </div>
-                                {item.isSale && (
-                                    <div className="absolute top-3 right-3 flex items-center justify-center bg-gradient-to-tr from-red-600 to-rose-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-[0_4px_12px_rgba(225,29,72,0.4)] z-20 uppercase tracking-widest border-2 border-white">
-                                        Giảm Giá
-                                    </div>
-                                )}
+                    <Link to={`/product/${newProducts[0].id}`} className="block relative w-full flex-1 p-10 bg-slate-50/50 flex items-center justify-center overflow-hidden min-h-[350px]">
+                       {newProducts[0].image ? 
+                           <img src={`http://localhost:5000${newProducts[0].image}`} alt={newProducts[0].name} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-700 drop-shadow-xl" /> 
+                       : <div className="text-slate-300">Chưa có ảnh</div>}
+                    </Link>
 
-                                <Link to={`/product/${item.id}`} className="block relative w-full h-64 p-6 bg-white flex items-center justify-center overflow-hidden">
-                                    {item.image ? 
-                                    <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm" /> 
-                                    : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
-                                </Link>
-                                <div className="p-5 flex flex-col flex-1 bg-slate-50/50 border-t border-slate-50">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">{item.category?.name || 'Phụ kiện'}</span>
-                                    <Link to={`/product/${item.id}`}>
-                                    <h3 className="text-base font-bold text-slate-800 mb-4 hover:text-blue-600 transition-colors line-clamp-2 min-h-[3rem] leading-snug">{item.name}</h3>
-                                    </Link>
-                                    <div className="mt-auto">
-                                        <span className="text-xl font-black text-slate-900 block mb-4">{Number(item.price).toLocaleString('vi-VN')} đ</span>
-                                        <button onClick={() => addToCart(item)} className="w-full bg-white border-2 border-slate-900 text-slate-900 py-2.5 rounded-xl font-bold hover:bg-slate-900 hover:text-white transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 group/btn">
-                                            <svg className="w-5 h-5 text-slate-900 group-hover/btn:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                            Thêm vào giỏ
-                                        </button>
-                                    </div>
-                                </div>
+                    <div className="p-8 bg-white z-10 flex flex-col">
+                        <span className="text-xs font-black text-blue-600 uppercase tracking-widest mb-2 block">{newProducts[0].category?.name || 'Hàng Mới'}</span>
+                        <Link to={`/product/${newProducts[0].id}`}>
+                          <h3 className="text-2xl font-black text-slate-900 mb-3 hover:text-blue-600 transition-colors line-clamp-2 leading-snug">{newProducts[0].name}</h3>
+                        </Link>
+                        <p className="text-sm text-slate-500 line-clamp-2 mb-6 leading-relaxed font-medium">{newProducts[0].description || 'Siêu phẩm công nghệ vừa cập bến. Sở hữu ngay hôm nay!'}</p>
+                        
+                        <div className="flex items-center justify-between pt-6 border-t border-slate-100 mt-auto">
+                            <div className="flex flex-col">
+                                {newProducts[0].sale_price > 0 ? (
+                                    <>
+                                        <span className="text-3xl font-black text-red-600 tracking-tight leading-none mb-1.5">{Number(newProducts[0].sale_price).toLocaleString('vi-VN')} đ</span>
+                                        <span className="text-sm font-bold text-slate-400 line-through">{Number(newProducts[0].price).toLocaleString('vi-VN')} đ</span>
+                                    </>
+                                ) : (
+                                    <span className="text-3xl font-black text-slate-900 tracking-tight leading-none block">{Number(newProducts[0].price).toLocaleString('vi-VN')} đ</span>
+                                )}
                             </div>
-                        ))}
+                            <button onClick={() => addToCart(newProducts[0])} className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-600 transition-all duration-300 shadow-md active:scale-95 flex items-center gap-2 flex-shrink-0">
+                                Mua Ngay
+                            </button>
+                        </div>
                     </div>
-                </div>
-            );
-        })
+                 </div>
+             )}
+
+             {/* 4 THẺ NHỎ */}
+             <div className="lg:col-span-7 grid grid-cols-2 gap-6">
+                 {newProducts.slice(1, 5).map(item => (
+                    <div key={`new-small-${item.id}`} className="bg-white rounded-2xl flex flex-col border-2 border-slate-100 overflow-hidden group hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.1)] hover:border-blue-200 transition-all duration-300 relative h-full">
+                        
+                        {/* NÚT TIM CÓ HÀM BẤM */}
+                        <button 
+                          onClick={(e) => toggleFavorite(e, item.id)} 
+                          className={`absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center backdrop-blur-md rounded-full transition-colors shadow-sm ${favorites.includes(item.id) ? 'bg-red-50 text-red-500' : 'bg-white/80 text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
+                        >
+                            <svg className="w-4 h-4" fill={favorites.includes(item.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                {favorites.includes(item.id) ? (
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                )}
+                            </svg>
+                        </button>
+
+                        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20 items-start">
+                            {Number(item.sale_price) > 0 ? (
+                                <span className="bg-red-50 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Giảm {Math.round(((Number(item.price) - Number(item.sale_price)) / Number(item.price)) * 100)}%</span>
+                            ) : item.isSale ? (
+                                <span className="bg-red-50 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Giảm Giá</span>
+                            ) : null}
+                            {item.isNew && <span className="bg-blue-50 text-blue-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Mới</span>}
+                            {item.isBest && <span className="bg-orange-50 text-orange-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Hot</span>}
+                        </div>
+
+                        <Link to={`/product/${item.id}`} className="block relative w-full h-44 p-4 bg-slate-50/50 flex items-center justify-center overflow-hidden border-b border-slate-100">
+                          {item.image ? <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply" /> : <div className="text-slate-300 text-xs font-medium">Chưa có ảnh</div>}
+                        </Link>
+                        
+                        <div className="p-5 flex flex-col flex-1 bg-white">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">{item.category?.name || 'Hàng Mới'}</span>
+                          <Link to={`/product/${item.id}`}><h3 className="text-sm font-bold text-slate-800 mb-3 hover:text-blue-600 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">{item.name}</h3></Link>
+                          
+                          <div className="mt-auto flex items-end justify-between">
+                              <div className="flex flex-col">
+                                  {item.sale_price > 0 ? (
+                                      <><span className="text-base font-black text-red-600 leading-none block mb-1">{Number(item.sale_price).toLocaleString('vi-VN')} đ</span><span className="text-xs font-semibold text-slate-400 line-through">{Number(item.price).toLocaleString('vi-VN')} đ</span></>
+                                  ) : (
+                                      <span className="text-base font-black text-slate-900 leading-none block">{Number(item.price).toLocaleString('vi-VN')} đ</span>
+                                  )}
+                              </div>
+                              <button onClick={() => addToCart(item)} className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-95 group-hover:bg-slate-900 group-hover:text-white flex-shrink-0">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                              </button>
+                          </div>
+                        </div>
+                    </div>
+                 ))}
+             </div>
+          </div>
+        </div>
       )}
 
-      {/* 4. TIN TỨC & ĐÁNH GIÁ */}
-      {newsList.length > 0 && (
+      {/* 4. KHỐI SẢN PHẨM BÁN CHẠY NHẤT */}
+      {uiSettings.showBest && bestProducts.length > 0 && (
+        <div className="mb-20 bg-slate-50 rounded-3xl p-6 md:p-10 border border-slate-100/60">
+          <div className="flex items-center gap-4 mb-8">
+            <h2 className="text-2xl md:text-3xl font-black text-orange-500 uppercase tracking-tight flex items-center gap-3">
+              <span className="text-orange-500 drop-shadow-md">🏆</span> Top Bán Chạy Nhất
+            </h2>
+            <div className="h-[2px] bg-orange-200/50 flex-1"></div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {bestProducts.slice(0, 8).map(item => (
+              <div key={`best-${item.id}`} className="bg-white rounded-2xl flex flex-col border border-slate-100 overflow-hidden group hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.1)] hover:border-orange-300 transition-all duration-300 hover:-translate-y-1 relative">
+                
+                {/* NÚT TIM CÓ HÀM BẤM */}
+                <button 
+                  onClick={(e) => toggleFavorite(e, item.id)} 
+                  className={`absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center backdrop-blur-md rounded-full transition-colors shadow-sm ${favorites.includes(item.id) ? 'bg-red-50 text-red-500' : 'bg-white/80 text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
+                >
+                    <svg className="w-4 h-4" fill={favorites.includes(item.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        {favorites.includes(item.id) ? (
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        ) : (
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        )}
+                    </svg>
+                </button>
+
+                <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20 items-start">
+                    {Number(item.sale_price) > 0 ? (
+                        <span className="bg-red-50 border border-red-200 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Giảm {Math.round(((Number(item.price) - Number(item.sale_price)) / Number(item.price)) * 100)}%</span>
+                    ) : item.isSale ? (
+                        <span className="bg-red-50 border border-red-200 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Giảm Giá</span>
+                    ) : null}
+                    {item.isNew && <span className="bg-blue-50 border border-blue-200 text-blue-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Mới</span>}
+                    {item.isBest && <span className="bg-orange-50 border border-orange-200 text-orange-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Hot</span>}
+                </div>
+
+                <Link to={`/product/${item.id}`} className="block relative w-full h-56 p-5 bg-white flex items-center justify-center overflow-hidden border-b border-slate-50">
+                  {item.image ? <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
+                </Link>
+                
+                <div className="p-5 flex flex-col flex-1 bg-white">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{item.category?.name || 'Bán Chạy'}</span>
+                  <Link to={`/product/${item.id}`}><h3 className="text-sm md:text-base font-bold text-slate-800 mb-2 hover:text-orange-600 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">{item.name}</h3></Link>
+                  
+                  <div className="mt-auto flex items-end justify-between">
+                      <div className="flex flex-col">
+                          {item.sale_price > 0 ? (
+                              <><span className="text-lg font-black text-red-600 leading-none block mb-1.5">{Number(item.sale_price).toLocaleString('vi-VN')} đ</span><span className="text-xs font-semibold text-slate-400 line-through">{Number(item.price).toLocaleString('vi-VN')} đ</span></>
+                          ) : (
+                              <span className="text-lg font-black text-slate-900 leading-none block">{Number(item.price).toLocaleString('vi-VN')} đ</span>
+                          )}
+                      </div>
+                      <button onClick={() => addToCart(item)} className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-orange-500 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-95 group-hover:bg-slate-900 group-hover:text-white flex-shrink-0">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                      </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 5. BỘ LỌC VÀ KHU VỰC HIỂN THỊ THEO DANH MỤC */}
+      {uiSettings.showCategories && (
+          <>
+            <div className="flex items-center justify-center gap-4 mb-8 mt-12">
+               <div className="h-px bg-slate-200 flex-1 max-w-[100px]"></div>
+               <h2 className="text-3xl font-extrabold text-slate-800 dark:text-white text-center uppercase tracking-wider">Danh Mục Sản Phẩm</h2>
+               <div className="h-px bg-slate-200 flex-1 max-w-[100px]"></div>
+            </div>
+            
+     {/* THANH TÌM KIẾM & BỘ LỌC (ĐÃ FIX LỖI HIỂN THỊ CHỮ) */}
+      <div className="max-w-6xl mx-auto mb-14">
+        <div className="bg-white p-3 md:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100 flex flex-col lg:flex-row gap-4 items-center justify-between transition-all">
+          
+          {/* Cụm Tìm Kiếm (Nhỏ lại một chút để nhường chỗ cho Bộ lọc) */}
+          <div className="relative w-full lg:w-1/3">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <input 
+              type="text" 
+              placeholder="Tìm máy ảnh, ống kính..." 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border-2 border-slate-100 bg-slate-50 hover:bg-white focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all font-bold text-slate-700 placeholder:font-medium placeholder:text-slate-400 text-sm" 
+            />
+          </div>
+
+          {/* Cụm Bộ Lọc (Được cấp nhiều không gian hơn) */}
+          <div className="w-full lg:w-2/3 grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+            
+            {[
+              { id: 'cat', value: selectedCategory, onChange: setSelectedCategory, defaultText: "📦 Danh mục", options: categories.map(c => ({ val: c.id, label: c.name })) },
+              { id: 'brand', value: selectedBrand, onChange: setSelectedBrand, defaultText: "🏷️ Hãng", options: brands.map(b => ({ val: b.id, label: b.name })) },
+              { id: 'price', value: priceRange, onChange: setPriceRange, defaultText: "💰 Mức giá", options: [{val: 'under5', label: 'Dưới 5 triệu'}, {val: '5to15', label: '5 - 15 triệu'}, {val: 'over15', label: 'Trên 15 triệu'}] },
+              { id: 'sort', value: sortOption, onChange: setSortOption, defaultText: "↕️ Sắp xếp", options: [{val: 'priceAsc', label: 'Giá thấp đến cao'}, {val: 'priceDesc', label: 'Giá cao đến thấp'}, {val: 'nameAsc', label: 'Tên: A - Z'}, {val: 'nameDesc', label: 'Tên: Z - A'}] }
+            ].map((filter) => (
+              <div key={filter.id} className="relative group">
+                <select 
+                  value={filter.value} 
+                  onChange={(e) => filter.onChange(e.target.value)} 
+                  className={`w-full appearance-none pl-3 pr-8 py-3 rounded-2xl border-2 outline-none transition-all cursor-pointer text-sm font-bold truncate
+                    ${filter.value 
+                      ? 'border-blue-500 bg-blue-50/50 text-blue-700 shadow-[0_0_15px_rgba(59,130,246,0.15)]' 
+                      : 'border-slate-100 bg-slate-50 text-slate-600 hover:bg-white hover:border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50' 
+                    }`}
+                >
+                  <option value="">{filter.defaultText}</option>
+                  {filter.options.map(opt => <option key={opt.val} value={opt.val}>{opt.label}</option>)}
+                </select>
+                <div className={`absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-transform group-hover:translate-y-0.5 ${filter.value ? 'text-blue-600' : 'text-slate-400'}`}>
+                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+            ))}
+
+          </div>
+        </div>
+      </div>
+
+            {/* HIỂN THỊ SẢN PHẨM THEO TỪNG DANH MỤC */}
+            {processedProducts.length === 0 ? (
+              <div className="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200 mb-12">
+                  <span className="text-5xl mb-4 block">🧐</span>
+                  <p className="text-slate-500 text-lg font-medium">Không tìm thấy sản phẩm nào phù hợp với bộ lọc.</p>
+                  <button onClick={clearFilters} className="mt-6 text-white font-bold bg-slate-900 px-8 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-md">Xóa bộ lọc</button>
+              </div>
+            ) : (
+              categories.map(category => {
+                  const categoryProducts = processedProducts.filter(item => 
+                      item.categoryId === category.id || item.categoryId?.toString() === category.id.toString()
+                  );
+
+                  if (categoryProducts.length === 0) return null;
+
+                  return (
+                      <div key={`cat-${category.id}`} className="mb-16">
+                          <div className="flex items-center gap-4 mb-6">
+                              <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white uppercase tracking-wider">
+                                  {category.name}
+                              </h2>
+                              <div className="h-0.5 bg-blue-600 w-16"></div>
+                              <div className="h-px bg-slate-200 flex-1"></div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                              {categoryProducts.slice(0, 8).map(item => (
+                                  <div key={item.id} className="bg-white rounded-2xl flex flex-col border border-slate-100 overflow-hidden group hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.1)] hover:border-blue-200 transition-all duration-300 hover:-translate-y-1 relative">
+                                      
+                                      {/* NÚT TIM CÓ HÀM BẤM */}
+                                      <button 
+                                        onClick={(e) => toggleFavorite(e, item.id)} 
+                                        className={`absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center backdrop-blur-md rounded-full transition-colors shadow-sm ${favorites.includes(item.id) ? 'bg-red-50 text-red-500' : 'bg-white/80 text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
+                                      >
+                                          <svg className="w-4 h-4" fill={favorites.includes(item.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                              {favorites.includes(item.id) ? (
+                                                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                              ) : (
+                                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                              )}
+                                          </svg>
+                                      </button>
+
+                                      <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20 items-start">
+                                          {Number(item.sale_price) > 0 ? (
+                                              <span className="bg-red-50 border border-red-200 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Giảm {Math.round(((Number(item.price) - Number(item.sale_price)) / Number(item.price)) * 100)}%</span>
+                                          ) : item.isSale ? (
+                                              <span className="bg-red-50 border border-red-200 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Giảm Giá</span>
+                                          ) : null}
+                                          {item.isNew && <span className="bg-blue-50 border border-blue-200 text-blue-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Mới</span>}
+                                          {item.isBest && <span className="bg-orange-50 border border-orange-200 text-orange-600 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Hot</span>}
+                                      </div>
+
+                                      <Link to={`/product/${item.id}`} className="block relative w-full h-56 p-5 bg-white flex items-center justify-center overflow-hidden border-b border-slate-50">
+                                          {item.image ? <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
+                                      </Link>
+                                      
+                                      <div className="p-5 flex flex-col flex-1 bg-white">
+                                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{item.category?.name || 'Danh mục'}</span>
+                                          <Link to={`/product/${item.id}`}>
+                                              <h3 className="text-sm md:text-base font-bold text-slate-800 mb-2 hover:text-blue-600 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">{item.name}</h3>
+                                          </Link>
+                                          <div className="mt-auto flex items-end justify-between">
+                                              <div className="flex flex-col">
+                                                  {item.sale_price > 0 ? (
+                                                      <><span className="text-lg font-black text-red-600 leading-none block mb-1.5">{Number(item.sale_price).toLocaleString('vi-VN')} đ</span><span className="text-xs font-semibold text-slate-400 line-through">{Number(item.price).toLocaleString('vi-VN')} đ</span></>
+                                                  ) : (
+                                                      <span className="text-lg font-black text-slate-900 leading-none block">{Number(item.price).toLocaleString('vi-VN')} đ</span>
+                                                  )}
+                                              </div>
+                                              <button onClick={() => addToCart(item)} className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-95 group-hover:bg-slate-900 group-hover:text-white flex-shrink-0">
+                                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                              </button>
+                                          </div>
+                                      </div>
+                                  </div>
+                              ))}
+                          </div>
+                      </div>
+                  );
+              })
+            )}
+          </>
+      )}
+
+      {/* 6. TIN TỨC & ĐÁNH GIÁ */}
+      {uiSettings.showNews && newsList.length > 0 && (
         <div className="mt-16 border-t border-slate-100 pt-16 mb-8">
           <div className="flex justify-between items-end mb-8"><h2 className="text-3xl font-extrabold text-slate-800 dark:text-white uppercase tracking-wide">Tin Tức & Đánh Giá</h2></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -412,11 +604,6 @@ const newProducts = products.filter(item => item.isNew); // Lấy hàng mới
     </div>
   )
 }
-
-// ==========================================
-// ==========================================
-// 2. TRANG CHI TIẾT SẢN PHẨM 
-// ==========================================
 // 2. TRANG CHI TIẾT SẢN PHẨM 
 // ==========================================
 function ProductDetail() {
@@ -684,7 +871,13 @@ function ProductDetail() {
                   )}
               </button>
           </div>
-
+{/* VÁ LỖI HIỂN THỊ: CHI TIẾT MÔ TẢ */}
+          {product.description && (
+            <div className="mt-8 pt-8 border-t border-slate-200">
+                <h3 className="font-black text-slate-800 uppercase tracking-wide mb-4 text-lg">Mô tả sản phẩm</h3>
+                <p className="text-slate-600 leading-relaxed whitespace-pre-line text-justify text-sm md:text-base">{product.description}</p>
+            </div>
+          )}
           {/* Thông số kỹ thuật */}
           {product.specs && Object.keys(product.specs).length > 0 && (
             <div className="mt-10 border border-slate-200 rounded-2xl overflow-hidden bg-white">
@@ -1193,17 +1386,17 @@ function Admin() {
   // Khai báo formData duy nhất (chứa đầy đủ các cờ isNew, isSale, isBest)
 const [formData, setFormData] = useState({ 
       name: '', price: '', salePrice: '', quantity: '10', categoryId: '', brandId: '', 
+      description: '', // Đã thêm Mô tả
       colors: '', gallery: '', specs: '', 
       isNew: true, isSale: false, isBest: false 
   });
-
   // Màu sắc cho biểu đồ Tròn
   const PIE_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8B5CF6'];
 // STATE CHO CÀI ĐẶT GIAO DIỆN
-  const [uiSettings, setUiSettings] = useState(() => {
+ const [uiSettings, setUiSettings] = useState(() => {
       return JSON.parse(localStorage.getItem('app_ui_settings')) || { 
           shopName: 'CAMERA', shopHighlight: 'SHOP', 
-          showSale: true, showCategories: true, showNews: true 
+          showSale: true, showCategories: true, showNews: true, showNew: true, showBest: true, themeColor: 'slate'
       };
   });
 
@@ -1323,7 +1516,7 @@ const handleSubmit = (e) => {
     data.append('name', formData.name); 
     data.append('price', formData.price); 
     data.append('sale_price', formData.salePrice || 0); // Đẩy giá khuyến mãi lên backend
-    data.append('quantity', formData.quantity); 
+   data.append('description', formData.description || ''); // Gửi mô tả lên Database
     data.append('categoryId', formData.categoryId || '1'); 
     data.append('brandId', formData.brandId || '1'); 
     if (formData.colors) data.append('colors', formData.colors); 
@@ -1363,6 +1556,7 @@ const handleSubmit = (e) => {
           price: product.price ? product.price.toString() : '', 
           salePrice: product.sale_price ? product.sale_price.toString() : '', 
           quantity: product.quantity ? product.quantity.toString() : '0', 
+          description: product.description || '', // Kéo mô tả về form sửa
           categoryId: product.categoryId ? product.categoryId.toString() : '', 
           brandId: product.brandId ? product.brandId.toString() : '', 
           colors: product.colors ? JSON.stringify(product.colors) : '', 
@@ -1489,28 +1683,23 @@ const handleSubmit = (e) => {
                              <div className="space-y-6">
                                  
                                {/* 1. THỐNG KÊ TỔNG QUAN (5 CARDS) */}
-<div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-    <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-blue-500 print:border-b-2 print:border-slate-800">
-        <p className="text-[10px] lg:text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider flex items-center gap-1">💰 Tổng Doanh Thu</p>
-        <h3 className="text-xl xl:text-xl 2xl:text-2xl font-black text-blue-700 print:text-black whitespace-nowrap">
-            {Number(dashboardData.overview.totalRevenue).toLocaleString('vi-VN')} đ
-        </h3>
+{/* VÁ LỖI YÊU CẦU: 4 Thống số bắt buộc của Dashboard */}
+<div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-blue-500">
+        <p className="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">📦 Tổng Sản Phẩm</p>
+        <h3 className="text-2xl font-black text-blue-700">{products.length || dashboardData.overview.totalProducts || 0}</h3>
     </div>
-    <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-slate-800 print:border-b-2 print:border-slate-800">
-        <p className="text-[10px] lg:text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider flex items-center gap-1">🛒 Tổng Số Đơn</p>
-        <h3 className="text-xl xl:text-xl 2xl:text-2xl font-black text-slate-800">{dashboardData.overview.totalOrders}</h3>
+    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-green-500">
+        <p className="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">🗂️ Tổng Danh Mục</p>
+        <h3 className="text-2xl font-black text-green-600">{categories.length || dashboardData.overview.totalCategories || 0}</h3>
     </div>
-    <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-green-500 print:border-b-2 print:border-slate-800">
-        <p className="text-[10px] lg:text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider flex items-center gap-1">📦 Đã Hoàn Thành</p>
-        <h3 className="text-xl xl:text-xl 2xl:text-2xl font-black text-green-600 print:text-black">{dashboardData.overview.completedOrders}</h3>
+    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-orange-500">
+        <p className="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">🛒 Tổng Đơn Hàng</p>
+        <h3 className="text-2xl font-black text-orange-600">{dashboardData?.overview?.totalOrders || 0}</h3>
     </div>
-    <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-red-500 print:border-b-2 print:border-slate-800">
-        <p className="text-[10px] lg:text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider flex items-center gap-1">❌ Đơn Đã Hủy</p>
-        <h3 className="text-xl xl:text-xl 2xl:text-2xl font-black text-red-600 print:text-black">{dashboardData.overview.cancelledOrders}</h3>
-    </div>
-    <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-purple-500 print:border-b-2 print:border-slate-800">
-        <p className="text-[10px] lg:text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider flex items-center gap-1">👥 Khách Hàng</p>
-        <h3 className="text-xl xl:text-xl 2xl:text-2xl font-black text-purple-600 print:text-black">{dashboardData.overview.totalCustomers}</h3>
+    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-purple-500">
+        <p className="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">👥 Tổng Người Dùng</p>
+        <h3 className="text-2xl font-black text-purple-600">{dashboardData?.overview?.totalCustomers || 0}</h3>
     </div>
 </div>
 
@@ -1750,8 +1939,16 @@ const handleSubmit = (e) => {
                             <label className="block text-sm font-bold text-slate-700 mb-2">Tồn kho <span className="text-red-500">*</span></label>
                             <input type="text" name="quantity" value={formData.quantity} onChange={handleChange} placeholder="10" className="w-full border border-slate-300 rounded-xl px-5 py-3.5 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition font-bold text-slate-800" required />
                         </div>
+                        
+                        {/* MỚI THÊM: Ô NHẬP MÔ TẢ */}
+                        <div className="md:col-span-12 mt-2">
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Mô tả chi tiết sản phẩm</label>
+                            <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Viết mô tả giới thiệu tính năng nổi bật của sản phẩm..." className="w-full border border-slate-300 rounded-xl px-5 py-4 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition font-medium text-slate-800 resize-y" rows="4" />
+                        </div>
                     </div>
                 </div>
+
+                {/* 2. PHÂN LOẠI & HÌNH ẢNH */}
 
                 {/* 2. PHÂN LOẠI & HÌNH ẢNH */}
                 <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
@@ -2118,14 +2315,26 @@ const handleSubmit = (e) => {
                             </td>
                             <td className="p-4">
                                 {/* Hãy thêm lại hàm onChange cập nhật database của bạn vào thẻ select này */}
-                                <select 
-                                    defaultValue={user.role || 'Khách Hàng'}
+                             <select 
+                                    value={user.role || 'USER'}
+                                    onChange={async (e) => {
+                                        const newRole = e.target.value;
+                                        if (window.confirm(`Xác nhận đổi quyền của người dùng này thành ${newRole}?`)) {
+                                            try {
+                                                await axios.put(`http://localhost:5000/api/admin/users/${user.id}/role`, { role: newRole }, { headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` }});
+                                                toast.success("Cập nhật phân quyền thành công!");
+                                                fetchData(); // Load lại danh sách để cập nhật UI
+                                            } catch (error) {
+                                                toast.error("Lỗi khi cập nhật quyền!");
+                                            }
+                                        }
+                                    }}
                                     className="w-full border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50 text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none cursor-pointer transition-all hover:border-indigo-300 shadow-sm"
                                 >
-                                    <option value="Khách Hàng">Khách Hàng</option>
-                                    <option value="Editor Content">Editor Content</option>
-                                    <option value="Quản Trị Viên">Quản Trị Viên</option>
-                                    <option value="Super Admin">Super Admin</option>
+                                    <option value="USER">Khách Hàng</option>
+                                    <option value="EDITOR">Editor Content</option>
+                                    <option value="ADMIN">Quản Trị Viên</option>
+                                    <option value="SUPERADMIN">Super Admin</option>
                                 </select>
                             </td>
                         </tr>
@@ -2350,21 +2559,26 @@ const handleSubmit = (e) => {
                          </div>
 
                          {/* Section Toggles */}
+                         {/* MÀU GIAO DIỆN VÀ CÔNG TẮC (Đúng mục 4) */}
+                       {/* MÀU GIAO DIỆN VÀ CÔNG TẮC (Đúng mục 4) */}
                          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                             <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-5 flex items-center gap-2"><span className="text-red-500">■</span> Màu Giao Diện Chủ Đạo</h3>
+                             <div className="flex gap-6 mb-8">
+                                 {/* Nút Màu Mặc Định Mới Thêm */}
+                                 <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="theme" value="slate" checked={uiSettings.themeColor === 'slate' || !uiSettings.themeColor} onChange={e => setUiSettings({...uiSettings, themeColor: e.target.value})} className="w-5 h-5 accent-slate-900" /><span className="font-bold text-slate-900">Tối Giản (Gốc)</span></label>
+                                 
+                                 <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="theme" value="blue" checked={uiSettings.themeColor === 'blue'} onChange={e => setUiSettings({...uiSettings, themeColor: e.target.value})} className="w-5 h-5 accent-blue-600" /><span className="font-bold text-blue-600">Xanh Dương</span></label>
+                                 <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="theme" value="red" checked={uiSettings.themeColor === 'red'} onChange={e => setUiSettings({...uiSettings, themeColor: e.target.value})} className="w-5 h-5 accent-red-600" /><span className="font-bold text-red-600">Đỏ Đam Mê</span></label>
+                                 <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="theme" value="green" checked={uiSettings.themeColor === 'green'} onChange={e => setUiSettings({...uiSettings, themeColor: e.target.value})} className="w-5 h-5 accent-emerald-600" /><span className="font-bold text-emerald-600">Xanh Lá</span></label>
+                                 <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="theme" value="orange" checked={uiSettings.themeColor === 'orange'} onChange={e => setUiSettings({...uiSettings, themeColor: e.target.value})} className="w-5 h-5 accent-orange-500" /><span className="font-bold text-orange-500">Cam</span></label>
+                             </div>
+
                              <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-5 flex items-center gap-2"><span className="text-purple-500">■</span> Ẩn/Hiện Khu Vực Trang Chủ</h3>
-                             <div className="space-y-4">
-                                 <label className="flex items-center gap-3 cursor-pointer group">
-                                     <input type="checkbox" checked={uiSettings.showSale} onChange={e => setUiSettings({...uiSettings, showSale: e.target.checked})} className="w-6 h-6 accent-blue-600 rounded cursor-pointer" />
-                                     <span className="font-bold text-slate-700 group-hover:text-blue-600 transition-colors">Hiển thị khu vực "⚡ Ưu Đãi Tháng Này" (Sản phẩm Giảm Giá)</span>
-                                 </label>
-                                 <label className="flex items-center gap-3 cursor-pointer group">
-                                     <input type="checkbox" checked={uiSettings.showCategories} onChange={e => setUiSettings({...uiSettings, showCategories: e.target.checked})} className="w-6 h-6 accent-blue-600 rounded cursor-pointer" />
-                                     <span className="font-bold text-slate-700 group-hover:text-blue-600 transition-colors">Hiển thị khu vực "📦 Danh Mục Sản Phẩm"</span>
-                                 </label>
-                                 <label className="flex items-center gap-3 cursor-pointer group">
-                                     <input type="checkbox" checked={uiSettings.showNews} onChange={e => setUiSettings({...uiSettings, showNews: e.target.checked})} className="w-6 h-6 accent-blue-600 rounded cursor-pointer" />
-                                     <span className="font-bold text-slate-700 group-hover:text-blue-600 transition-colors">Hiển thị khu vực "📰 Tin Tức & Đánh Giá"</span>
-                                 </label>
+                             <div className="grid grid-cols-2 gap-4">
+                                 <label className="flex items-center gap-3 bg-white p-3 border rounded-xl cursor-pointer"><input type="checkbox" checked={uiSettings.showNew} onChange={e => setUiSettings({...uiSettings, showNew: e.target.checked})} className="w-6 h-6" /> <b>Sản Phẩm Mới</b></label>
+                                 <label className="flex items-center gap-3 bg-white p-3 border rounded-xl cursor-pointer"><input type="checkbox" checked={uiSettings.showBest} onChange={e => setUiSettings({...uiSettings, showBest: e.target.checked})} className="w-6 h-6" /> <b>Sản Phẩm Bán Chạy</b></label>
+                                 <label className="flex items-center gap-3 bg-white p-3 border rounded-xl cursor-pointer"><input type="checkbox" checked={uiSettings.showSale} onChange={e => setUiSettings({...uiSettings, showSale: e.target.checked})} className="w-6 h-6" /> <b>Sản Phẩm Giảm Giá</b></label>
+                                 <label className="flex items-center gap-3 bg-white p-3 border rounded-xl cursor-pointer"><input type="checkbox" checked={uiSettings.showNews} onChange={e => setUiSettings({...uiSettings, showNews: e.target.checked})} className="w-6 h-6" /> <b>Tin Tức Mới</b></label>
                              </div>
                          </div>
 
@@ -2459,6 +2673,8 @@ function AppContent() {
   const { totalItems } = useContext(CartContext);
   const { user, logout } = useContext(AuthContext);
 const uiSettings = JSON.parse(localStorage.getItem('app_ui_settings')) || { shopName: 'CAMERA', shopHighlight: 'SHOP' };
+const colorMap = { slate: 'bg-slate-900', blue: 'bg-blue-600', red: 'bg-red-600', green: 'bg-emerald-600', orange: 'bg-orange-500' };
+  const themeBg = colorMap[uiSettings.themeColor] || colorMap['slate'];
   // 1. Thêm State quản lý Dark Mode
   // 1. Lấy trạng thái Dark Mode riêng biệt dựa theo URL (Admin hay Khách)
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -2491,7 +2707,7 @@ const uiSettings = JSON.parse(localStorage.getItem('app_ui_settings')) || { shop
 
   return (
    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col print:bg-white transition-colors duration-300">
-      <nav className="bg-slate-900 text-white shadow-lg sticky top-0 z-50 print:hidden">
+      <nav className={`${themeBg} text-white shadow-lg sticky top-0 z-50 print:hidden`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <Link to="/" className="text-2xl font-extrabold text-blue-400 tracking-wider hover:text-white transition">
             {uiSettings.shopName}<span className="text-white">{uiSettings.shopHighlight}</span>
@@ -2590,7 +2806,7 @@ const uiSettings = JSON.parse(localStorage.getItem('app_ui_settings')) || { shop
         </Routes>
       </div>
       
-      {/* KHỐI FOOTER MỚI */}
+     {/* KHỐI FOOTER MỚI (ĐÃ THÊM DANH MỤC) */}
       {!isAdminRoute && (
           <footer className="bg-slate-900 text-slate-300 py-12 text-sm mt-16 print:hidden border-t-4 border-blue-600">
             <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -2631,27 +2847,39 @@ const uiSettings = JSON.parse(localStorage.getItem('app_ui_settings')) || { shop
                 </p>
               </div>
 
-              {/* Cột 3: Liên kết nhanh & Chính sách */}
+              {/* Cột 3: Liên kết nhanh & DANH MỤC (ĐÃ GỘP) */}
               <div className="flex flex-col gap-4">
-                <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-2 border-b border-slate-700 pb-2">Hỗ Trợ Khách Hàng</h3>
+                <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-2 border-b border-slate-700 pb-2">Hỗ Trợ & Danh Mục</h3>
                 
-                {/* Menu liên kết */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
+                {/* Menu liên kết 2 cột (Một bên là Menu, một bên là Danh mục) */}
+                <div className="grid grid-cols-2 gap-3 mb-2">
                   <div className="flex flex-col gap-3">
+                    <span className="text-white font-bold text-xs uppercase opacity-70">Menu</span>
                     <Link to="/" className="hover:text-blue-400 transition flex items-center gap-2">
                       <span className="text-blue-500">▪</span> Trang Chủ
                     </Link>
                     <Link to="/cart" className="hover:text-blue-400 transition flex items-center gap-2">
                       <span className="text-blue-500">▪</span> Giỏ Hàng
                     </Link>
+                    <span className="hover:text-blue-400 transition flex items-center gap-2 cursor-pointer">
+                      <span className="text-blue-500">▪</span> Bảo Hành
+                    </span>
                   </div>
-                  <div className="flex flex-col gap-3">
-                    <span className="hover:text-blue-400 transition flex items-center gap-2 cursor-pointer">
-                      <span className="text-blue-500">▪</span> Chính sách bảo hành
-                    </span>
-                    <span className="hover:text-blue-400 transition flex items-center gap-2 cursor-pointer">
-                      <span className="text-blue-500">▪</span> Chính sách đổi trả
-                    </span>
+                  
+                  <div className="flex flex-col gap-3 border-l border-slate-700 pl-4">
+                    <span className="text-white font-bold text-xs uppercase opacity-70">Sản Phẩm</span>
+                    <Link to="/" className="hover:text-blue-400 transition flex items-center gap-2">
+                      <span className="text-blue-500">▪</span> Mirrorless
+                    </Link>
+                    <Link to="/" className="hover:text-blue-400 transition flex items-center gap-2">
+                      <span className="text-blue-500">▪</span> Máy DSLR
+                    </Link>
+                    <Link to="/" className="hover:text-blue-400 transition flex items-center gap-2">
+                      <span className="text-blue-500">▪</span> Ống Kính
+                    </Link>
+                    <Link to="/" className="hover:text-blue-400 transition flex items-center gap-2">
+                      <span className="text-blue-500">▪</span> Phụ Kiện
+                    </Link>
                   </div>
                 </div>
 
