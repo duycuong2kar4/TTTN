@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Đặt sẵn base URL ở đây để sau này lúc public website chỉ cần đổi 1 dòng này
-const BASE_URL = '[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api';
+const BASE_URL = 'https://camerashop-backend-xlx8.onrender.com/api';
 
 // 1. API Gửi yêu cầu Thanh Toán (Checkout)
 export const checkoutAPI = async (cartItems, totalAmount) => {

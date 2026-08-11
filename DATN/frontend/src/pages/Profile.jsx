@@ -66,7 +66,7 @@ export default function Profile() {
     const currentToken = getValidToken();
     if (!currentToken) return handleAuthError();
     try {
-      const res = await axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/addresses', {
+      const res = await axios.get('https://camerashop-backend-xlx8.onrender.com/api/addresses', {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       setAddresses(res.data);
@@ -79,7 +79,7 @@ export default function Profile() {
     const currentToken = getValidToken();
     if (!currentToken) return handleAuthError();
     try {
-      const res = await axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/wishlist', {
+      const res = await axios.get('https://camerashop-backend-xlx8.onrender.com/api/wishlist', {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       setWishlist(res.data);
@@ -104,7 +104,7 @@ export default function Profile() {
     const currentToken = getValidToken();
     if (!currentToken) return handleAuthError();
     try {
-      await axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/addresses', addressForm, {
+      await axios.post('https://camerashop-backend-xlx8.onrender.com/api/addresses', addressForm, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       toast.success("Thêm địa chỉ thành công!");
@@ -121,7 +121,7 @@ export default function Profile() {
     const currentToken = getValidToken();
     if (!currentToken) return handleAuthError();
     try {
-      await axios.delete(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/addresses/${id}`, {
+      await axios.delete(`https://camerashop-backend-xlx8.onrender.com/api/addresses/${id}`, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       toast.success("Đã xóa địa chỉ!");
@@ -136,7 +136,7 @@ export default function Profile() {
     const currentToken = getValidToken();
     if (!currentToken) return handleAuthError();
     try {
-      await axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/wishlist/toggle', { productId }, {
+      await axios.post('https://camerashop-backend-xlx8.onrender.com/api/wishlist/toggle', { productId }, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       toast.success("Đã bỏ yêu thích!");
@@ -162,7 +162,7 @@ export default function Profile() {
     const currentToken = getValidToken();
     if (!currentToken) return handleAuthError();
     try {
-      const res = await axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/users/profile', {
+      const res = await axios.get('https://camerashop-backend-xlx8.onrender.com/api/users/profile', {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       const user = res.data;
@@ -175,7 +175,7 @@ export default function Profile() {
         address: user.address || '',
         avatar: user.avatar || ''
       });
-      if (user.avatar) setPreviewImage(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${user.avatar}`);
+      if (user.avatar) setPreviewImage(`https://camerashop-backend-xlx8.onrender.com${user.avatar}`);
     } catch (error) {
       if (error.response?.status === 401 || error.response?.status === 403) handleAuthError();
     }
@@ -188,7 +188,7 @@ export default function Profile() {
       const currentUser = JSON.parse(localStorage.getItem('user'));
       if (!currentUser) return;
 
-      const res = await axios.get(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/orders/user/${currentUser.id}`, {
+      const res = await axios.get(`https://camerashop-backend-xlx8.onrender.com/api/orders/user/${currentUser.id}`, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       setOrders(res.data);
@@ -237,7 +237,7 @@ export default function Profile() {
     }
 
     try {
-      const res = await axios.put('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/users/profile', payload, { headers });
+      const res = await axios.put('https://camerashop-backend-xlx8.onrender.com/api/users/profile', payload, { headers });
       
       toast.success(res.data?.message || "Cập nhật thành công!");
       
@@ -273,7 +273,7 @@ export default function Profile() {
     }
 
     try {
-      const res = await axios.put('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/users/change-password', {
+      const res = await axios.put('https://camerashop-backend-xlx8.onrender.com/api/users/change-password', {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword
       }, {
@@ -295,7 +295,7 @@ export default function Profile() {
     if (!window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) return;
     try {
       const token = getValidToken();
-      await axios.put(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/orders/${orderId}/status`, { status: 'CANCELLED' }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.put(`https://camerashop-backend-xlx8.onrender.com/api/orders/${orderId}/status`, { status: 'CANCELLED' }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success("Đã hủy đơn hàng thành công!");
       fetchOrders();
       if(selectedOrder && selectedOrder.id === orderId) setSelectedOrder(null);
@@ -306,7 +306,7 @@ export default function Profile() {
     if (!window.confirm("Xác nhận bạn đã nhận được hàng nguyên vẹn?")) return;
     try {
       const token = getValidToken();
-      await axios.put(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/orders/${orderId}/status`, { status: 'PAID' }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.put(`https://camerashop-backend-xlx8.onrender.com/api/orders/${orderId}/status`, { status: 'PAID' }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success("Cảm ơn bạn đã mua sắm!");
       fetchOrders();
     } catch (error) { toast.error("Lỗi hệ thống khi xác nhận!"); }
@@ -334,7 +334,7 @@ export default function Profile() {
       }
 
       try {
-          await axios.post(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products/${reviewingProduct.id}/reviews`, reviewForm, {
+          await axios.post(`https://camerashop-backend-xlx8.onrender.com/api/products/${reviewingProduct.id}/reviews`, reviewForm, {
               headers: { Authorization: `Bearer ${currentToken}` }
           });
           toast.success("Cảm ơn bạn đã đánh giá sản phẩm!");
@@ -468,7 +468,7 @@ export default function Profile() {
                       {order.items.slice(0, 2).map(item => (
                         <div key={item.id} className="flex items-center gap-4 border-b border-slate-50 pb-4 mb-4 last:border-0 last:pb-0 last:mb-0">
                           {item.product.image ? (
-                            <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.product.image}`} className="w-16 h-16 object-cover rounded-xl border border-slate-200 bg-white" />
+                            <img src={`https://camerashop-backend-xlx8.onrender.com${item.product.image}`} className="w-16 h-16 object-cover rounded-xl border border-slate-200 bg-white" />
                           ) : (
                             <div className="w-16 h-16 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-[10px] text-slate-400">Trống</div>
                           )}
@@ -581,7 +581,7 @@ export default function Profile() {
                                 <tr key={item.id} className="border-b border-slate-100 last:border-0 bg-white">
                                     <td className="p-4">
                                         <div className="flex items-center gap-4">
-                                            <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.product.image}`} className="w-14 h-14 object-cover rounded-xl border border-slate-200 p-1 bg-slate-50" />
+                                            <img src={`https://camerashop-backend-xlx8.onrender.com${item.product.image}`} className="w-14 h-14 object-cover rounded-xl border border-slate-200 p-1 bg-slate-50" />
                                             <div>
                                                 <p className="font-bold text-slate-800 line-clamp-2">{item.product.name}</p>
                                                 {selectedOrder.status === 'PAID' && (
@@ -793,7 +793,7 @@ export default function Profile() {
                   <div key={item.id} className="flex gap-4 p-4 border border-slate-200 rounded-2xl bg-white hover:shadow-md hover:border-blue-200 transition">
                     <div className="w-24 h-24 flex-shrink-0 cursor-pointer rounded-xl overflow-hidden border border-slate-100 bg-slate-50" onClick={() => navigate(`/product/${item.product.id}`)}>
                       {item.product.image ? (
-                        <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.product.image}`} alt={item.product.name} className="w-full h-full object-cover" />
+                        <img src={`https://camerashop-backend-xlx8.onrender.com${item.product.image}`} alt={item.product.name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-400 text-[10px]">Trống</div>
                       )}
@@ -860,7 +860,7 @@ export default function Profile() {
                {/* Thông পুরা tin sản phẩm vắn tắt */}
                <div className="flex items-center gap-4 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                   {reviewingProduct.image ? (
-                     <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${reviewingProduct.image}`} className="w-16 h-16 object-cover rounded-xl border border-white shadow-sm bg-white" />
+                     <img src={`https://camerashop-backend-xlx8.onrender.com${reviewingProduct.image}`} className="w-16 h-16 object-cover rounded-xl border border-white shadow-sm bg-white" />
                   ) : (
                      <div className="w-16 h-16 bg-slate-200 rounded-xl flex items-center justify-center text-xs text-slate-500">Trống</div>
                   )}

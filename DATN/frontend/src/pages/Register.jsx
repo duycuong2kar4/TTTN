@@ -19,7 +19,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/users/register', formData);
+      const response = await axios.post('https://camerashop-backend-xlx8.onrender.com/api/users/register', formData);
       toast.success(response.data.message || 'Đăng ký thành công!');
       navigate('/login'); // Chuyển hướng sang trang đăng nhập
     } catch (error) {
