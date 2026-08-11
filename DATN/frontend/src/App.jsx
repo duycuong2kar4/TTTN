@@ -56,18 +56,18 @@ function Home() {
 
   // Lấy dữ liệu sản phẩm
   useEffect(() => {
-    axios.get('http://localhost:5000/api/products').then(res => setProducts(res.data));
-    axios.get('http://localhost:5000/api/categories').then(res => setCategories(res.data));
-    axios.get('http://localhost:5000/api/brands').then(res => setBrands(res.data));
-    axios.get('http://localhost:5000/api/banners/active').then(res => setActiveBanners(res.data)).catch(err => console.log(err));
-    axios.get('http://localhost:5000/api/news').then(res => setNewsList(res.data.slice(0, 4))).catch(err => console.log(err));
+    axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products').then(res => setProducts(res.data));
+    axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/categories').then(res => setCategories(res.data));
+    axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/brands').then(res => setBrands(res.data));
+    axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/banners/active').then(res => setActiveBanners(res.data)).catch(err => console.log(err));
+    axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/news').then(res => setNewsList(res.data.slice(0, 4))).catch(err => console.log(err));
   }, []);
 
   // MỚI: Tải danh sách yêu thích khi người dùng đăng nhập
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token && user) {
-      axios.get('http://localhost:5000/api/wishlist', { headers: { Authorization: `Bearer ${token}` } })
+      axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/wishlist', { headers: { Authorization: `Bearer ${token}` } })
       .then(res => {
           // Chỉ lấy mảng các ID sản phẩm để dễ bề so sánh
           setFavorites(res.data.map(item => item.productId));
@@ -86,7 +86,7 @@ function Home() {
           return;
       }
       try {
-          const res = await axios.post('http://localhost:5000/api/wishlist/toggle', { productId }, {
+          const res = await axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/wishlist/toggle', { productId }, {
               headers: { Authorization: `Bearer ${token}` }
           });
           
@@ -194,10 +194,10 @@ function Home() {
               <div key={banner.id} className="flex-none w-full relative" style={{ flex: '0 0 100%' }}>
                 {banner.link ? (
                   <Link to={banner.link} className="block w-full h-full">
-                    <img src={`http://localhost:5000${banner.imageUrl}`} alt={banner.title || `Banner ${index}`} className="block w-full h-[250px] md:h-[400px] object-cover hover:opacity-95 transition-opacity" />
+                    <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${banner.imageUrl}`} alt={banner.title || `Banner ${index}`} className="block w-full h-[250px] md:h-[400px] object-cover hover:opacity-95 transition-opacity" />
                   </Link>
                 ) : (
-                  <img src={`http://localhost:5000${banner.imageUrl}`} alt={banner.title || `Banner ${index}`} className="block w-full h-[250px] md:h-[400px] object-cover" />
+                  <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${banner.imageUrl}`} alt={banner.title || `Banner ${index}`} className="block w-full h-[250px] md:h-[400px] object-cover" />
                 )}
               </div>
             ))}
@@ -255,7 +255,7 @@ function Home() {
                 </div>
 
                 <Link to={`/product/${item.id}`} className="block relative w-full h-56 p-5 bg-white flex items-center justify-center overflow-hidden border-b border-slate-50">
-                  {item.image ? <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
+                  {item.image ? <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
                 </Link>
                 
                 <div className="p-5 flex flex-col flex-1 bg-white">
@@ -307,7 +307,7 @@ function Home() {
                     <Link to={`/product/${newProducts[0].id}`} className="block relative w-full flex-1 p-6 md:p-8 bg-white flex items-center justify-center overflow-hidden min-h-[300px]">
                        {newProducts[0].image ? 
                            <img 
-                               src={`http://localhost:5000${newProducts[0].image}`} 
+                               src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${newProducts[0].image}`} 
                                alt={newProducts[0].name} 
                                className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-700 mix-blend-multiply" 
                            /> 
@@ -372,7 +372,7 @@ function Home() {
 
                         {/* Nền ảnh trắng hoàn toàn, dùng mix-blend-multiply */}
                         <Link to={`/product/${item.id}`} className="block relative w-full h-44 p-4 bg-white flex items-center justify-center overflow-hidden">
-                          {item.image ? <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply" /> : <div className="text-slate-300 text-xs font-medium">Chưa có ảnh</div>}
+                          {item.image ? <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply" /> : <div className="text-slate-300 text-xs font-medium">Chưa có ảnh</div>}
                         </Link>
                         
                         {/* Nền chữ xám nhạt đồng bộ */}
@@ -439,7 +439,7 @@ function Home() {
                 </div>
 
                 <Link to={`/product/${item.id}`} className="block relative w-full h-56 p-5 bg-white flex items-center justify-center overflow-hidden border-b border-slate-50">
-                  {item.image ? <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
+                  {item.image ? <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
                 </Link>
                 
                 <div className="p-5 flex flex-col flex-1 bg-white">
@@ -578,7 +578,7 @@ function Home() {
                                       </div>
 
                                       <Link to={`/product/${item.id}`} className="block relative w-full h-56 p-5 bg-white flex items-center justify-center overflow-hidden border-b border-slate-50">
-                                          {item.image ? <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
+                                          {item.image ? <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" /> : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
                                       </Link>
                                       
                                       <div className="p-5 flex flex-col flex-1 bg-white">
@@ -617,7 +617,7 @@ function Home() {
             {newsList.map(news => (
               <div key={news.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 group flex flex-col">
                 <Link to={`/news/${news.id}`} className="block overflow-hidden relative">
-                  {news.thumbnail ? <img src={`http://localhost:5000${news.thumbnail}`} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-700" alt={news.title}/> : <div className="w-full h-48 bg-slate-50 flex items-center justify-center text-slate-400">Chưa có ảnh</div>}
+                  {news.thumbnail ? <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${news.thumbnail}`} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-700" alt={news.title}/> : <div className="w-full h-48 bg-slate-50 flex items-center justify-center text-slate-400">Chưa có ảnh</div>}
                   <div className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-black px-3 py-1.5 rounded shadow uppercase tracking-wide">Mới</div>
                 </Link>
                 <div className="p-5 flex flex-col flex-1">
@@ -657,15 +657,15 @@ function ProductDetail() {
 
   useEffect(() => {
     // 1. Tải thông tin sản phẩm hiện tại
-    axios.get(`http://localhost:5000/api/products/${id}`)
+    axios.get(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products/${id}`)
       .then(res => {
          setProduct(res.data);
-         if (res.data.image) setActiveImg(`http://localhost:5000${res.data.image}`);
+         if (res.data.image) setActiveImg(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${res.data.image}`);
          else if (res.data.gallery && res.data.gallery.length > 0) setActiveImg(res.data.gallery[0]); 
          if (res.data.colors && res.data.colors.length > 0) setSelectedColor(res.data.colors[0]);
 
          // MỚI: Lấy danh sách sản phẩm liên quan (Cùng Category, trừ chính nó ra)
-         axios.get('http://localhost:5000/api/products')
+         axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products')
             .then(allRes => {
                 const filtered = allRes.data.filter(p => p.categoryId === res.data.categoryId && p.id !== res.data.id).slice(0, 4);
                 setRelatedProducts(filtered);
@@ -674,14 +674,14 @@ function ProductDetail() {
       }).catch(err => console.error(err));
       
     // 2. Tải đánh giá
-    axios.get(`http://localhost:5000/api/products/${id}/reviews`).then(res => setReviews(res.data)).catch(err => console.error(err));
+    axios.get(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products/${id}/reviews`).then(res => setReviews(res.data)).catch(err => console.error(err));
 
     // 3. MỚI THÊM: Kiểm tra xem sản phẩm này đã có trong danh sách yêu thích chưa
     const checkWishlistStatus = async () => {
         const token = localStorage.getItem('token');
         if (token) {
             try {
-                const res = await axios.get('http://localhost:5000/api/wishlist', {
+                const res = await axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/wishlist', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 // Nếu sản phẩm hiện tại có nằm trong list trả về -> Bật cờ isFavorite = true
@@ -704,7 +704,7 @@ function ProductDetail() {
           return;
       }
       try {
-          const res = await axios.post('http://localhost:5000/api/wishlist/toggle', { productId: id }, {
+          const res = await axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/wishlist/toggle', { productId: id }, {
               headers: { Authorization: `Bearer ${token}` }
           });
           
@@ -726,10 +726,10 @@ function ProductDetail() {
       if (!token) { toast.warning("Vui lòng đăng nhập để gửi đánh giá!"); navigate('/login'); return; }
       if (!reviewForm.comment.trim()) { toast.warning("Vui lòng nhập nội dung đánh giá!"); return; }
       try {
-          await axios.post(`http://localhost:5000/api/products/${id}/reviews`, reviewForm, { headers: { Authorization: `Bearer ${token}` } });
+          await axios.post(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products/${id}/reviews`, reviewForm, { headers: { Authorization: `Bearer ${token}` } });
           toast.success("Đánh giá thành công!");
           setReviewForm({ rating: 5, comment: '' });
-          const res = await axios.get(`http://localhost:5000/api/products/${id}/reviews`);
+          const res = await axios.get(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products/${id}/reviews`);
           setReviews(res.data);
       } catch (error) { toast.error("Có lỗi xảy ra khi gửi đánh giá!"); }
   };
@@ -766,7 +766,7 @@ function ProductDetail() {
           
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
             {product.image && (
-                <img src={`http://localhost:5000${product.image}`} onClick={() => setActiveImg(`http://localhost:5000${product.image}`)} className={`w-20 h-20 md:w-24 md:h-24 object-cover rounded-xl border-2 cursor-pointer transition-all flex-shrink-0 ${activeImg === `http://localhost:5000${product.image}` ? 'border-blue-600 shadow-md ring-4 ring-blue-50' : 'border-slate-100 hover:border-blue-300 opacity-70 hover:opacity-100'}`} alt="Main"/>
+                <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${product.image}`} onClick={() => setActiveImg(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${product.image}`)} className={`w-20 h-20 md:w-24 md:h-24 object-cover rounded-xl border-2 cursor-pointer transition-all flex-shrink-0 ${activeImg === `[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${product.image}` ? 'border-blue-600 shadow-md ring-4 ring-blue-50' : 'border-slate-100 hover:border-blue-300 opacity-70 hover:opacity-100'}`} alt="Main"/>
             )}
             {product.gallery && product.gallery.map((imgUrl, index) => (
                 <img key={index} src={imgUrl} onClick={() => setActiveImg(imgUrl)} className={`w-20 h-20 md:w-24 md:h-24 object-cover rounded-xl border-2 cursor-pointer transition-all flex-shrink-0 ${activeImg === imgUrl ? 'border-blue-600 shadow-md ring-4 ring-blue-50' : 'border-slate-100 hover:border-blue-300 opacity-70 hover:opacity-100'}`} alt={`Gallery ${index}`} />
@@ -978,7 +978,7 @@ function ProductDetail() {
                       reviews.map(review => (
                           <div key={review.id} className="bg-white p-6 rounded-2xl border border-slate-100 flex gap-5 hover:shadow-md transition-shadow hover:border-blue-100 group">
                               {review.user?.avatar ? (
-                                  <img src={`http://localhost:5000${review.user.avatar}`} alt="avatar" className="w-14 h-14 rounded-full object-cover border-2 border-slate-100 bg-slate-50 flex-shrink-0" /> 
+                                  <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${review.user.avatar}`} alt="avatar" className="w-14 h-14 rounded-full object-cover border-2 border-slate-100 bg-slate-50 flex-shrink-0" /> 
                               ) : (
                                   <div className="w-14 h-14 bg-blue-100 text-blue-600 font-black flex items-center justify-center rounded-full border-2 border-blue-200 flex-shrink-0 text-xl">
                                       {review.user?.name ? review.user.name.charAt(0).toUpperCase() : 'U'}
@@ -1017,7 +1017,7 @@ function ProductDetail() {
                       <div key={`related-${item.id}`} className="bg-white rounded-2xl flex flex-col border border-slate-100 overflow-hidden group hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] hover:border-blue-300 transition-all duration-300 hover:-translate-y-1">
                           <Link to={`/product/${item.id}`} onClick={() => window.scrollTo(0,0)} className="block relative w-full h-56 p-4 bg-white flex items-center justify-center overflow-hidden">
                               {item.image ? 
-                                <img src={`http://localhost:5000${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply" /> 
+                                <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply" /> 
                               : <div className="text-slate-300 text-sm font-medium">Chưa có ảnh</div>}
                           </Link>
                           <div className="p-5 flex flex-col flex-1 bg-slate-50/50 border-t border-slate-50">
@@ -1050,7 +1050,7 @@ function NewsDetail() {
   const [article, setArticle] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/news/${id}`).then(res => setArticle(res.data)).catch(err => console.error("Lỗi lấy bài viết:", err));
+    axios.get(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/news/${id}`).then(res => setArticle(res.data)).catch(err => console.error("Lỗi lấy bài viết:", err));
   }, [id]);
 
   if (!article) return <div className="text-center mt-20 text-xl font-medium h-64 flex items-center justify-center">Đang tải bài viết...</div>;
@@ -1061,7 +1061,7 @@ function NewsDetail() {
       <div className="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100">
         <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">{article.title}</h1>
         <div className="flex flex-wrap gap-4 text-gray-500 text-sm mb-8 border-b border-gray-100 pb-6 font-medium"><span className="bg-gray-100 px-3 py-1 rounded-full">🕒 Đăng ngày: {new Date(article.createdAt).toLocaleDateString('vi-VN')}</span><span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full">👁️ {article.views} lượt xem</span>{article.author && <span className="bg-gray-100 px-3 py-1 rounded-full">✍️ Tác giả: {article.author.name}</span>}</div>
-        {article.thumbnail && <img src={`http://localhost:5000${article.thumbnail}`} alt={article.title} className="w-full h-auto rounded-xl mb-10 shadow-sm object-cover max-h-[500px]" />}
+        {article.thumbnail && <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${article.thumbnail}`} alt={article.title} className="w-full h-auto rounded-xl mb-10 shadow-sm object-cover max-h-[500px]" />}
         <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed" dangerouslySetInnerHTML={{ __html: article.content }} />
       </div>
     </div>
@@ -1150,7 +1150,7 @@ function Cart() {
     if (user) {
         setShippingInfo(prev => ({ ...prev, fullName: user.fullName || user.name || '', phone: user.phone || '' }));
         if (token) {
-            axios.get('http://localhost:5000/api/addresses', { headers: { Authorization: `Bearer ${token}` } })
+            axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/addresses', { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 const addresses = res.data;
                 if (addresses.length > 0) {
@@ -1179,7 +1179,7 @@ function Cart() {
       // LƯU TẠM VÀO LOCALSTORAGE TRƯỚC KHI ĐI PAYOS
       localStorage.setItem('pending_checkout', JSON.stringify(selectedCartItems));
 
-      const res = await axios.post('http://localhost:5000/api/checkout', { 
+      const res = await axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/checkout', { 
           cartItems: selectedCartItems, // Chỉ gửi dữ liệu các SP được tích chọn
           totalAmount: selectedTotalPrice, // Gửi Tổng tiền đã lọc
           userId: user.id, 
@@ -1250,7 +1250,7 @@ function Cart() {
                   />
 
                   <div className="w-24 h-24 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center p-2 flex-shrink-0 cursor-pointer" onClick={() => navigate(`/product/${item.id}`)}>
-                      <img src={`http://localhost:5000${item.image}`} className="w-full h-full object-cover mix-blend-multiply" alt={item.name} />
+                      <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.image}`} className="w-full h-full object-cover mix-blend-multiply" alt={item.name} />
                   </div>
                   
                   <div className="flex-1">
@@ -1489,7 +1489,7 @@ const [formData, setFormData] = useState({
   };
 // Dán hàm này vào đây:
   const fetchPaginatedProducts = (page = 1) => {
-      axios.get(`http://localhost:5000/api/products?page=${page}&limit=5`)
+      axios.get(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products?page=${page}&limit=5`)
       .then(res => {
           setProducts(res.data.data);
           setTotalProductPages(res.data.totalPages);
@@ -1500,18 +1500,18 @@ const [formData, setFormData] = useState({
 
   const fetchData = () => {
     if (!isAuthenticated) return; 
-    axios.get('http://localhost:5000/api/banners').then(res => setBanners(res.data)).catch(err => console.log(err));
-    axios.get('http://localhost:5000/api/news').then(res => setNews(res.data)).catch(err => console.log(err));
+    axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/banners').then(res => setBanners(res.data)).catch(err => console.log(err));
+    axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/news').then(res => setNews(res.data)).catch(err => console.log(err));
     
     if (adminRole === 'ADMIN' || adminRole === 'SUPERADMIN') {
        fetchPaginatedProducts(1);
-        axios.get('http://localhost:5000/api/categories').then(res => { setCategories(res.data); if(res.data.length > 0) setFormData(p => ({ ...p, categoryId: res.data[0].id.toString() })) });
-        axios.get('http://localhost:5000/api/brands').then(res => { setBrands(res.data); if(res.data.length > 0) setFormData(p => ({ ...p, brandId: res.data[0].id.toString() })) });
-        axios.get('http://localhost:5000/api/orders').then(res => setOrders(res.data)).catch(err => console.error(err));
-        axios.get('http://localhost:5000/api/admin/reviews').then(res => setAllReviews(res.data)).catch(err => console.log(err));
+        axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/categories').then(res => { setCategories(res.data); if(res.data.length > 0) setFormData(p => ({ ...p, categoryId: res.data[0].id.toString() })) });
+        axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/brands').then(res => { setBrands(res.data); if(res.data.length > 0) setFormData(p => ({ ...p, brandId: res.data[0].id.toString() })) });
+        axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/orders').then(res => setOrders(res.data)).catch(err => console.error(err));
+        axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/admin/reviews').then(res => setAllReviews(res.data)).catch(err => console.log(err));
     }
     if (adminRole === 'SUPERADMIN') {
-        axios.get('http://localhost:5000/api/admin/users').then(res => setUsers(res.data)).catch(err => console.error(err));
+        axios.get('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/admin/users').then(res => setUsers(res.data)).catch(err => console.error(err));
     }
   };
 
@@ -1520,7 +1520,7 @@ const [formData, setFormData] = useState({
   // Gọi API Dashboard Pro
   useEffect(() => {
       if (activeTab === 'dashboard' && (adminRole === 'ADMIN' || adminRole === 'SUPERADMIN')) {
-          let url = `http://localhost:5000/api/admin/dashboard?range=${dateRange}`;
+          let url = `[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/admin/dashboard?range=${dateRange}`;
           if (dateRange === 'custom' && customStart && customEnd) {
               url += `&startDate=${customStart}&endDate=${customEnd}`;
           }
@@ -1573,8 +1573,8 @@ const handleSubmit = (e) => {
     data.append('isBest', formData.isBest);
     
     const req = editingId 
-        ? axios.put(`http://localhost:5000/api/products/${editingId}`, data, { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('admin_token')}` }}) 
-        : axios.post('http://localhost:5000/api/products', data, { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('admin_token')}` }}); 
+        ? axios.put(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products/${editingId}`, data, { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('admin_token')}` }}) 
+        : axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products', data, { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('admin_token')}` }}); 
     
     req.then(() => { 
         toast.success(editingId ? "Cập nhật thành công!" : "Thêm thành công!"); 
@@ -1586,7 +1586,7 @@ const handleSubmit = (e) => {
   };
   const handleDelete = (id) => {
       if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này không?")) {
-          axios.delete(`http://localhost:5000/api/products/${id}`)
+          axios.delete(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/products/${id}`)
           .then(() => {
               toast.success("Đã xóa sản phẩm thành công!");
               fetchPaginatedProducts(productPage); // Tải lại đúng trang hiện tại
@@ -1629,7 +1629,7 @@ const handleSubmit = (e) => {
       const statusMap = { 'SHIPPING': 'GIAO HÀNG', 'PAID': 'ĐÃ HOÀN THÀNH', 'CANCELLED': 'ĐÃ HỦY' };
       if (window.confirm(`Xác nhận đổi trạng thái đơn hàng #${orderId} thành: ${statusMap[newStatus]}?`)) { 
           try { 
-              await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus }); 
+              await axios.put(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/orders/${orderId}/status`, { status: newStatus }); 
               toast.success("Cập nhật trạng thái thành công!"); 
               fetchData(); 
               if (selectedAdminOrder && selectedAdminOrder.id === orderId) {
@@ -1844,7 +1844,7 @@ const handleSubmit = (e) => {
                                                             </td>
                                                             <td className="p-4">
                                                                 <div className="flex items-center gap-3">
-                                                                    {prod.image ? <img src={`http://localhost:5000${prod.image}`} className="w-10 h-10 rounded border object-cover print:hidden" /> : <div className="w-10 h-10 bg-slate-100 rounded print:hidden"></div>}
+                                                                    {prod.image ? <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${prod.image}`} className="w-10 h-10 rounded border object-cover print:hidden" /> : <div className="w-10 h-10 bg-slate-100 rounded print:hidden"></div>}
                                                                     <span className="font-bold text-slate-800 max-w-[200px] md:max-w-[400px] truncate block">{prod.name}</span>
                                                                 </div>
                                                             </td>
@@ -1884,10 +1884,10 @@ const handleSubmit = (e) => {
                          e.preventDefault();
                          try {
                              if (editingCatId) {
-                                 await axios.put(`http://localhost:5000/api/categories/${editingCatId}`, categoryForm, { headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` } });
+                                 await axios.put(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/categories/${editingCatId}`, categoryForm, { headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` } });
                                  toast.success("Đã cập nhật danh mục!");
                              } else {
-                                 await axios.post('http://localhost:5000/api/categories', categoryForm, { headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` } });
+                                 await axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/categories', categoryForm, { headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` } });
                                  toast.success("Thêm danh mục thành công!");
                              }
                              fetchData(); // Tải lại danh sách
@@ -1932,7 +1932,7 @@ const handleSubmit = (e) => {
                                          <button onClick={async () => {
                                              if(window.confirm(`Bạn có chắc chắn muốn xóa danh mục "${cat.name}"?`)) {
                                                  try {
-                                                     await axios.delete(`http://localhost:5000/api/categories/${cat.id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` }});
+                                                     await axios.delete(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/categories/${cat.id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` }});
                                                      toast.success("Xóa thành công!");
                                                      fetchData();
                                                  } catch(e) { toast.error("Không thể xóa danh mục đang có sản phẩm!"); }
@@ -2086,7 +2086,7 @@ const handleSubmit = (e) => {
                              {products.map(item => (
                                  <div key={item.id} className="p-4 bg-white rounded-xl flex flex-col md:flex-row justify-between md:items-center gap-4 border border-slate-100 shadow-sm hover:shadow-md transition">
                                      <div className="flex items-center gap-4 w-full md:w-auto">
-                                         {item.image ? <img src={`http://localhost:5000${item.image}`} className="w-16 h-16 object-cover rounded-lg border" /> : <div className="w-16 h-16 bg-slate-100 rounded-lg flex justify-center items-center text-xs text-slate-400">Trống</div>}
+                                         {item.image ? <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.image}`} className="w-16 h-16 object-cover rounded-lg border" /> : <div className="w-16 h-16 bg-slate-100 rounded-lg flex justify-center items-center text-xs text-slate-400">Trống</div>}
                                          <div><span className="font-black text-slate-800 text-lg block">{item.name}</span><span className="text-sm font-semibold px-2 py-0.5 bg-slate-100 text-slate-600 rounded mt-1 inline-block">{item.category?.name}</span></div>
                                      </div>
                                      <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
@@ -2280,7 +2280,7 @@ const handleSubmit = (e) => {
                                          <td className="p-4 text-slate-500 font-mono print:border print:border-slate-800">#{item.productId}</td>
                                          <td className="p-4 print:border print:border-slate-800">
                                              <div className="flex items-center gap-3">
-                                                 <img src={`http://localhost:5000${item.product.image}`} className="w-10 h-10 object-cover rounded border border-slate-200 print:hidden" />
+                                                 <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${item.product.image}`} className="w-10 h-10 object-cover rounded border border-slate-200 print:hidden" />
                                                  <span className="font-bold text-slate-800">{item.product.name}</span>
                                              </div>
                                          </td>
@@ -2366,7 +2366,7 @@ const handleSubmit = (e) => {
                                         const newRole = e.target.value;
                                         if (window.confirm(`Xác nhận đổi quyền của người dùng này thành ${newRole}?`)) {
                                             try {
-                                                await axios.put(`http://localhost:5000/api/admin/users/${user.id}/role`, { role: newRole }, { headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` }});
+                                                await axios.put(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/admin/users/${user.id}/role`, { role: newRole }, { headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` }});
                                                 toast.success("Cập nhật phân quyền thành công!");
                                                 fetchData(); // Load lại danh sách để cập nhật UI
                                             } catch (error) {
@@ -2414,11 +2414,11 @@ const handleSubmit = (e) => {
         
         try {
             if (editingBannerId) {
-                await axios.put(`http://localhost:5000/api/banners/${editingBannerId}`, data, { headers: { 'Content-Type': 'multipart/form-data' }});
+                await axios.put(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/banners/${editingBannerId}`, data, { headers: { 'Content-Type': 'multipart/form-data' }});
                 toast.success("Đã cập nhật Banner!");
             } else {
                 if (!bannerFile) return toast.warning("Vui lòng chọn ảnh!");
-                await axios.post('http://localhost:5000/api/banners', data, { headers: { 'Content-Type': 'multipart/form-data' }});
+                await axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/banners', data, { headers: { 'Content-Type': 'multipart/form-data' }});
                 toast.success("Upload Banner thành công!");
             }
             
@@ -2472,10 +2472,10 @@ const handleSubmit = (e) => {
                         {banners.map(b => (
                             <div key={b.id} className="border border-slate-200 p-5 rounded-2xl flex flex-col gap-4 bg-slate-50 shadow-sm relative overflow-hidden group">
                                 <div className="w-full h-40 bg-slate-200 rounded-xl overflow-hidden border border-slate-300">
-                                    <img src={`http://localhost:5000${b.imageUrl}`} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                                    <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${b.imageUrl}`} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                                 </div>
                                 <div className="flex flex-wrap gap-2 justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm mt-auto">
-                                    <button className={`px-4 py-2 rounded-lg text-sm font-black tracking-wide border-2 transition ${b.isActive ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : 'bg-slate-100 text-slate-500 border-transparent hover:bg-slate-200'}`} onClick={async () => {await axios.put(`http://localhost:5000/api/banners/${b.id}/toggle`);fetchData();}}>
+                                    <button className={`px-4 py-2 rounded-lg text-sm font-black tracking-wide border-2 transition ${b.isActive ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : 'bg-slate-100 text-slate-500 border-transparent hover:bg-slate-200'}`} onClick={async () => {await axios.put(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/banners/${b.id}/toggle`);fetchData();}}>
                                         {b.isActive ? "⚡ ĐANG PHÁT" : "⏸ ĐÃ TẠM DỪNG"}
                                     </button>
                                     
@@ -2488,7 +2488,7 @@ const handleSubmit = (e) => {
                                             Sửa
                                         </button>
                                         
-                                        <button onClick={async () => {if(window.confirm("Thực sự muốn xóa banner này?")) {await axios.delete(`http://localhost:5000/api/banners/${b.id}`);fetchData();}}} className="text-red-600 bg-red-50 border-2 border-transparent px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-100 hover:border-red-200 transition">
+                                        <button onClick={async () => {if(window.confirm("Thực sự muốn xóa banner này?")) {await axios.delete(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/banners/${b.id}`);fetchData();}}} className="text-red-600 bg-red-50 border-2 border-transparent px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-100 hover:border-red-200 transition">
                                             Xóa
                                         </button>
                                     </div>
@@ -2520,7 +2520,7 @@ const handleSubmit = (e) => {
         data.append('content', newsForm.content);
         if (newsFile) data.append('thumbnail', newsFile);
         try {
-            await axios.post('http://localhost:5000/api/news', data, { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('admin_token')}` }});
+            await axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/news', data, { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('admin_token')}` }});
             toast.success("Bài viết đã xuất bản!");
             fetchData();
             setNewsForm({ title: '', content: '' }); 
@@ -2553,7 +2553,7 @@ const handleSubmit = (e) => {
                              {news.map(n => (
                                  <div key={n.id} className="border border-slate-200 p-4 rounded-xl flex flex-col md:flex-row gap-5 bg-white shadow-sm hover:shadow-md transition items-start md:items-center justify-between">
                                      <div className="flex gap-5 items-center w-full md:w-auto">
-                                         {n.thumbnail ? <img src={`http://localhost:5000${n.thumbnail}`} className="w-24 h-24 object-cover rounded-lg border shadow-sm" /> : <div className="w-24 h-24 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">Trống</div>}
+                                         {n.thumbnail ? <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${n.thumbnail}`} className="w-24 h-24 object-cover rounded-lg border shadow-sm" /> : <div className="w-24 h-24 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">Trống</div>}
                                          <div className="flex-1">
                                              <h3 className="font-black text-lg text-slate-800 line-clamp-2 leading-tight">{n.title}</h3>
                                              <div className="flex flex-wrap gap-3 mt-2 text-sm">
@@ -2564,7 +2564,7 @@ const handleSubmit = (e) => {
                                      </div>
                                      <button onClick={async () => {
                                          if(window.confirm("Cảnh báo: Hành động này không thể hoàn tác. Xóa?")) {
-                                             await axios.delete(`http://localhost:5000/api/news/${n.id}`);
+                                             await axios.delete(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/news/${n.id}`);
                                              fetchData();
                                          }
                                      }} className="text-red-600 bg-red-50 border border-transparent px-6 py-2.5 rounded-xl font-bold hover:bg-red-100 hover:border-red-200 transition w-full md:w-auto text-center">Gỡ Bỏ</button>
@@ -2661,7 +2661,7 @@ const handleSubmit = (e) => {
                         {/* Thông tin SP và User */}
                         <div className="flex gap-5 w-full md:w-auto flex-1">
                             <div className="w-20 h-20 bg-slate-50 rounded-2xl border border-slate-100 flex-shrink-0 flex items-center justify-center overflow-hidden p-2">
-                                {review.product.image ? <img src={`http://localhost:5000${review.product.image}`} className="w-full h-full object-cover rounded-xl" /> : <span className="text-xs text-slate-400">Trống</span>}
+                                {review.product.image ? <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${review.product.image}`} className="w-full h-full object-cover rounded-xl" /> : <span className="text-xs text-slate-400">Trống</span>}
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-black text-slate-800 text-lg hover:text-blue-600 transition cursor-pointer mb-2 line-clamp-1">{review.product.name}</h3>
@@ -2691,7 +2691,7 @@ const handleSubmit = (e) => {
                         <button onClick={async () => {
                             if(window.confirm("Xóa vĩnh viễn bình luận này khỏi hệ thống?")) {
                                 try {
-                                    await axios.delete(`http://localhost:5000/api/admin/reviews/${review.id}`);
+                                    await axios.delete(`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/admin/reviews/${review.id}`);
                                     fetchData();
                                     toast.success("Đã lọc đánh giá!");
                                 } catch(e) { toast.error("Lỗi hệ thống"); }
@@ -2774,7 +2774,7 @@ const colorMap = { slate: 'bg-slate-900', blue: 'bg-blue-600', red: 'bg-red-600'
                  <div className="relative group ml-4 cursor-pointer">
                     <div className="flex items-center gap-2 text-white hover:text-blue-400 transition py-2">
                     {user.avatar ? (
-                      <img src={`http://localhost:5000${user.avatar}`} alt="Avatar" className="w-8 h-8 rounded-full object-cover border border-gray-300" />
+                      <img src={`[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)${user.avatar}`} alt="Avatar" className="w-8 h-8 rounded-full object-cover border border-gray-300" />
                     ) : (
                       <span className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
                         {user.name ? user.name.charAt(0).toUpperCase() : 'U'}

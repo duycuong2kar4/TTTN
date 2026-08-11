@@ -28,7 +28,7 @@ const Login = () => {
     setIsLoading(true); // Vừa bấm nút là bật hiệu ứng Loading ngay lập tức
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', formData);
+      const response = await axios.post('[https://camerashop-backend-xlx8.onrender.com](https://camerashop-backend-xlx8.onrender.com)/api/users/login', formData);
       const userData = response.data.user;
       const serverToken = response.data.accessToken || response.data.token;
 
