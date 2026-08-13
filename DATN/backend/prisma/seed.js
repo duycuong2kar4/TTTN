@@ -2,8 +2,49 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
+  console.log('⏳ Đang chuẩn bị Bệ phóng: Nạp Danh mục và Hãng...');
+
+  // 1. TỰ ĐỘNG NẠP 7 DANH MỤC
+  const categories = [
+    { id: 1, name: 'Máy ảnh Mirrorless' },
+    { id: 2, name: 'Ống kính / Lens' },
+    { id: 3, name: 'Máy ảnh DSLR' },
+    { id: 4, name: 'Máy ảnh Compact' },
+    { id: 5, name: 'Máy quay chuyên dụng' },
+    { id: 6, name: 'Flycam & Chống rung' },
+    { id: 7, name: 'Balo & Túi đựng' },
+  ];
+  for (const cat of categories) {
+    await prisma.category.upsert({
+      where: { id: cat.id },
+      update: {},
+      create: cat,
+    });
+  }
+  console.log('✅ Đã tạo đủ 7 Danh mục!');
+
+  // 2. TỰ ĐỘNG NẠP 7 HÃNG
+  const brands = [
+    { id: 1, name: 'Sony' },
+    { id: 2, name: 'Canon' },
+    { id: 3, name: 'Nikon' },
+    { id: 4, name: 'Fujifilm' },
+    { id: 5, name: 'Panasonic' },
+    { id: 6, name: 'DJI' },
+    { id: 7, name: 'Peak Design / Phụ kiện' },
+  ];
+  for (const brand of brands) {
+    await prisma.brand.upsert({
+      where: { id: brand.id },
+      update: {},
+      create: brand,
+    });
+  }
+  console.log('✅ Đã tạo đủ 7 Hãng sản xuất!');
+
   console.log('⏳ Đang tiến hành nạp 35 sản phẩm mẫu vào Database...');
 
+  // 3. DANH SÁCH 35 SẢN PHẨM
   const products = [
     // 1. MÁY ẢNH MIRRORLESS (categoryId = 1)
     { name: 'Canon EOS R7 Body', price: 35000000, quantity: 15, description: 'Cảm biến APS-C 32.5MP, lấy nét Dual Pixel CMOS AF II siêu nhanh, quay video 4K 60p không crop. Cỗ máy hoàn hảo cho chụp thể thao và nhiếp ảnh thiên nhiên hoang dã.', categoryId: 1, brandId: 2, isNew: true, isSale: false, isBest: true },
@@ -60,7 +101,7 @@ async function main() {
       data: products,
       skipDuplicates: true,
     });
-    console.log(`✅ Thành công! Đã thêm ${result.count} sản phẩm vào cơ sở dữ liệu.`);
+    console.log(`✅ CHÚC MỪNG! Đã nạp thành công toàn bộ ${result.count} sản phẩm lên Đám mây.`);
   } catch (error) {
     console.error('❌ Lỗi khi thêm dữ liệu:', error);
   } finally {
